@@ -16,6 +16,29 @@ export interface AnalysisResult {
   rule_warnings: RuleWarning[];
 }
 
+export interface LinkResult {
+  display_host: string;
+  band: Band;
+  headline: string;
+  lookalike: boolean;
+  rule_warnings: RuleWarning[];
+}
+
+export interface EmailResult {
+  band: Band;
+  headline: string;
+  advice: string;
+  footer: string;
+  sender: string;
+  model_reasons: string[];
+  rule_warnings: RuleWarning[];
+  links: LinkResult[];
+  links_checked: boolean;
+  truncated: boolean;
+  header_checks: { available: boolean; message: string; warnings: RuleWarning[] };
+  model_note: string;
+}
+
 export interface Account {
   email: string;
   csrf_token: string;
@@ -38,13 +61,15 @@ export function setCsrfToken(token: string) {
 
 async function request<T>(path: string, method: string, body?: unknown): Promise<T> {
   const headers: Record<string, string> = {};
-  if (body !== undefined) headers["Content-Type"] = "application/json";
+  const isForm = body instanceof FormData;
+  // A FormData body needs the browser to set its own multipart Content-Type.
+  if (body !== undefined && !isForm) headers["Content-Type"] = "application/json";
   if (method !== "GET") headers["X-CSRF-Token"] = csrfToken;
   const response = await fetch(path, {
     method,
     headers,
     credentials: "same-origin",
-    body: body === undefined ? undefined : JSON.stringify(body),
+    body: body === undefined ? undefined : isForm ? body : JSON.stringify(body),
   });
   if (!response.ok) {
     let message = "Something went wrong. Please try again.";
@@ -68,4 +93,13 @@ export const api = {
     request<Account>("/api/auth/login", "POST", { email, password }),
   logout: () => request<void>("/api/auth/logout", "POST"),
   analyzeUrl: (url: string) => request<AnalysisResult>("/api/analyze/url", "POST", { url }),
+  analyzeEmailFields: (subject: string, sender: string, body: string) =>
+    request<EmailResult>("/api/analyze/email", "POST", { mode: "fields", subject, sender, body }),
+  analyzeEmailSource: (source: string) =>
+    request<EmailResult>("/api/analyze/email", "POST", { mode: "raw", source }),
+  analyzeEmailFile: (file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    return request<EmailResult>("/api/analyze/email/upload", "POST", form);
+  },
 };

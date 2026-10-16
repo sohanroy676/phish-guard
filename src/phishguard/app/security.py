@@ -2,9 +2,16 @@
 
 import hashlib
 import hmac
+import json
+import re
 import secrets
+from email.utils import parseaddr
 
+from phishguard.core.email.parse import ParsedEmail
 from phishguard.core.url.normalize import NormalizedURL
+
+_DOMAIN_RE = re.compile(r"^[a-z0-9]([a-z0-9.-]{0,251}[a-z0-9])?$")
+UNKNOWN_SENDER = "unknown sender"
 
 
 def hmac_hex(key: str, message: str) -> str:
@@ -26,6 +33,20 @@ def input_hmac(pepper: str, u: NormalizedURL) -> str:
 def defang_host(u: NormalizedURL) -> str:
     scheme = "hxxps" if u.scheme == "https" else "hxxp"
     return f"{scheme}://{u.host.replace('.', '[.]')}"
+
+
+def email_hmac(pepper: str, parsed: ParsedEmail) -> str:
+    """Keyed hash of sender, subject and text. Lets the app spot repeats without keeping them."""
+    return hmac_hex(pepper, "email:" + json.dumps([parsed.from_addr, parsed.subject, parsed.text]))
+
+
+def defang_sender(parsed: ParsedEmail) -> str:
+    """The sender's domain only, defanged. The local part and display name are never kept."""
+    addr = parseaddr(parsed.from_addr)[1]
+    domain = addr.rsplit("@", 1)[1].lower() if "@" in addr else ""
+    if not _DOMAIN_RE.match(domain):
+        return UNKNOWN_SENDER
+    return domain.replace(".", "[.]")
 
 
 def new_token() -> str:

@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "./auth";
 import NavBar from "./components/NavBar";
 import Analyze from "./pages/Analyze";
+import AnalyzeEmail from "./pages/AnalyzeEmail";
 import Login from "./pages/Login";
 import Placeholder from "./pages/Placeholder";
 import Register from "./pages/Register";
@@ -26,6 +27,14 @@ export default function App() {
             element={
               <RequireLogin>
                 <Analyze />
+              </RequireLogin>
+            }
+          />
+          <Route
+            path="/analyze/email"
+            element={
+              <RequireLogin>
+                <AnalyzeEmail />
               </RequireLogin>
             }
           />
