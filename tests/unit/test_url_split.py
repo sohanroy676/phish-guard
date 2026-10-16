@@ -50,6 +50,12 @@ def test_split_cleaning_counts(synthetic_raw):
     assert counts["dev_rows"] + counts["test_rows"] == len(dev) + len(test)
 
 
+def test_split_keeps_one_row_per_domain(synthetic_raw):
+    dev, test, _ = prepare_frame(synthetic_raw, seed=1, test_fraction=0.2)
+    both = pd.concat([dev, test])
+    assert both["group"].is_unique
+
+
 def test_split_is_deterministic_and_seed_sensitive(synthetic_raw):
     a = prepare_frame(synthetic_raw, seed=7, test_fraction=0.2)[1]
     b = prepare_frame(synthetic_raw, seed=7, test_fraction=0.2)[1]

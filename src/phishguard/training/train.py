@@ -17,6 +17,7 @@ from sklearn.model_selection import StratifiedGroupKFold
 from phishguard.core.registry import sha256_file
 from phishguard.core.url.features import (
     FEATURE_NAMES,
+    domain_text,
     feature_matrix,
     host_text,
     url_text,
@@ -31,6 +32,7 @@ def build_inputs(urls: pd.Series, cols: list[int]) -> dict[str, Any]:
     return {
         "url_text": np.array([url_text(u) for u in urls], dtype=object),
         "host_text": np.array([host_text(u) for u in urls], dtype=object),
+        "domain_text": np.array([domain_text(u) for u in urls], dtype=object),
         "features": feature_matrix(urls)[:, cols],
     }
 

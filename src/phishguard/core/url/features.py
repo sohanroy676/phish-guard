@@ -86,6 +86,16 @@ def host_text(url: NormalizedURL | str) -> str:
     return (normalize_url(url) if isinstance(url, str) else url).host
 
 
+def domain_text(url: NormalizedURL | str) -> str:
+    """Registered domain (the host for IPs and names with no public suffix), without subdomains.
+
+    Input for the n-gram model since ADR 0006: PhiUSIIL legitimate hosts are almost all
+    `www.<site>`, so a model that reads subdomains learns `www.` as a legitimacy signal.
+    """
+    u = normalize_url(url) if isinstance(url, str) else url
+    return u.registrable if u.domain and u.suffix else u.host
+
+
 def url_features(url: NormalizedURL | str) -> dict[str, float]:
     """Return features in FEATURE_NAMES order, always the same keys."""
     u = normalize_url(url) if isinstance(url, str) else url

@@ -12,7 +12,7 @@ from phishguard.app.main import create_app
 from phishguard.core.registry import MODELS_DIR
 
 pytestmark = pytest.mark.skipif(
-    not (MODELS_DIR / "url" / "v1" / "lr_char.joblib").is_file(),
+    not (MODELS_DIR / "url" / "v2" / "lr_char.joblib").is_file(),
     reason="real URL model not trained locally",
 )
 
@@ -22,7 +22,7 @@ def real_client(tmp_path_factory):
     settings = Settings(
         _env_file=None,
         database_url=f"sqlite:///{tmp_path_factory.mktemp('golden') / 'g.db'}",
-        model_version_url="v1",
+        model_version_url="v2",
         **SECRETS,
     )
     with TestClient(create_app(settings)) as client:
@@ -50,15 +50,28 @@ def test_brand_on_a_foreign_domain_is_flagged(real_client):
     assert any(w["rule_id"] == "brand_impersonation" for w in data["rule_warnings"])
 
 
-@pytest.mark.xfail(
-    reason="Known limitation (ADR 0005): the host-only model over-flags subdomain hosts.",
-    strict=True,
-)
 def test_wikipedia_has_no_strong_signs_and_never_says_safe(real_client):
     data = check(real_client, "https://en.wikipedia.org/wiki/Phishing").json()
     assert data["band"] == "low"
     assert data["headline"] == "No strong phishing signs found"
     assert "safe" not in " ".join(str(v) for v in data.values()).lower().replace("safety", "")
+
+
+def test_subdomain_does_not_change_the_model_band(real_client):
+    bands = {
+        check(real_client, f"https://{host}/").json()["band"]
+        for host in ("wikipedia.org", "www.wikipedia.org", "en.wikipedia.org")
+    }
+    assert len(bands) == 1
+
+
+@pytest.mark.xfail(
+    reason="Known limitation (ADR 0006): short famous .com domains still score as suspicious.",
+    strict=True,
+)
+@pytest.mark.parametrize("host", ["google.com", "github.com", "amazon.com"])
+def test_famous_domains_are_not_flagged(real_client, host):
+    assert check(real_client, f"https://{host}/").json()["band"] == "low"
 
 
 def test_ftp_is_rejected_with_the_roadmap_message(real_client):

@@ -4,6 +4,7 @@ import pytest
 
 from phishguard.core.url.features import (
     FEATURE_NAMES,
+    domain_text,
     feature_matrix,
     feature_vector,
     host_text,
@@ -96,3 +97,16 @@ def test_host_text_ignores_scheme_path_query_and_port():
     assert host_text("hxxp://evil[.]xyz/login") == "evil.xyz"
     with pytest.raises(ValueError):
         host_text("ftp://example.com")
+
+
+def test_domain_text_drops_subdomains_but_keeps_the_public_suffix():
+    assert domain_text("https://en.wikipedia.org/wiki/X") == "wikipedia.org"
+    assert domain_text("https://www.bbc.co.uk/news") == "bbc.co.uk"
+    assert domain_text("hxxp://paypal.com.evil[.]xyz/login") == "evil.xyz"
+
+
+def test_domain_text_keeps_the_whole_host_for_ips_and_suffixless_names():
+    assert domain_text("http://192.168.4.4/login") == "192.168.4.4"
+    assert domain_text("http://localhost:8000/") == "localhost"
+    with pytest.raises(ValueError):
+        domain_text("ftp://example.com")

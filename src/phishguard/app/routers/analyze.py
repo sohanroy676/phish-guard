@@ -38,7 +38,7 @@ def analyze_url(
     hits = run_rules(url)
     risk = assess(scorer.score(url), scorer.t_high, scorer.t_low, hits)
     # Reasons explain a warning, so they are only shown for the two warning bands.
-    reasons = lr_reasons(scorer.model, url.host) if risk.band in (HIGH, SUSPICIOUS) else []
+    reasons = lr_reasons(scorer.model, scorer.text(url)) if risk.band in (HIGH, SUSPICIOUS) else []
     warnings = [asdict(h) for h in hits]
     display_host = security.defang_host(url)
 

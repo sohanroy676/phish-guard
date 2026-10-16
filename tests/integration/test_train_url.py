@@ -65,7 +65,7 @@ def test_prepare_train_evaluate_end_to_end(cfg_path, tmp_path):
     base_pr = payload["results"]["heuristic_baseline"]["pr_auc"]
     assert set(payload["beats_baseline"]) == {"lr_char", "rf_hand"}
     assert all(payload["results"][m]["pr_auc"] >= base_pr for m in payload["beats_baseline"])
-    assert (tmp_path / "reports" / "results" / "url_locked.json").is_file()
+    assert (tmp_path / "reports" / "results" / "url_locked_vtest.json").is_file()
 
 
 def test_evaluate_refuses_to_overwrite_locked_results(cfg_path):
