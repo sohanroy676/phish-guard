@@ -12,4 +12,4 @@ After implementing any feature or fix:
 5. If any test fails, debug and fix the root cause before proceeding. Never comment out or delete a failing test to make the suite pass.
 6. Only after all tests pass, proceed to the commit workflow.
 
-Note: exact test framework, file location, and naming convention are defined per-project in `tech-stack.md` — follow that convention exactly rather than defaulting to a guess.
+Note: exact test framework, file location, and naming convention are defined per-project in `memory-bank/tech-stack.md` — follow that convention exactly rather than defaulting to a guess.

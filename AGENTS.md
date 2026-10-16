@@ -15,4 +15,4 @@ Critical conventions:
 - Never store raw email text or full URLs. Store only the HMAC, defanged host, band and reasons.
 - Secrets live only in `.env` (see `.env.example`). Never hardcode them.
 
-Detailed rules: see `.clinerules/`.
+Detailed rules: see `.claude/rules/`. Workflows: `.claude/commands/`.

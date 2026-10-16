@@ -3,10 +3,10 @@
 ## Folder structure
 ```
 phishguard/
-├── AGENTS.md  README.md  pyproject.toml  requirements.lock  Makefile
+├── CLAUDE.md  AGENTS.md  README.md  pyproject.toml  requirements.lock  Makefile
 ├── .env.example              # SECRET_KEY, HMAC_PEPPER, DATABASE_URL, RETENTION_DAYS, MODEL_VERSION_URL, MODEL_VERSION_EMAIL
 ├── .gitignore                # .env, data/, models/**/*.joblib, *.db, *.eml, *.mbox
-├── .clinerules/              # detailed agent rules
+├── .claude/                  # Claude Code rules (rules/), slash commands (commands/), settings
 ├── configs/
 │   ├── url.yaml              # dataset paths + SHA-256, seed, model grids, target FPR
 │   └── email.yaml

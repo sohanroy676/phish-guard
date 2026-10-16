@@ -6,7 +6,7 @@ Before committing any change, re-read the diff acting as a strict code reviewer 
 - Error handling: missing try/catch, unhandled promise rejections, silent failures
 - Complexity: functions doing too much, deeply nested logic, unclear naming
 - Duplication: logic that already exists elsewhere in the codebase
-- Consistency: does this match existing patterns in the project (see systemPatterns.md)?
+- Consistency: does this match existing patterns in the project (see `memory-bank/systemPatterns.md`)?
 - Dead code: unused imports, commented-out blocks, leftover debug logs/print statements
 
 Fix anything flagged before proceeding to commit. If unsure whether something is an issue, err on the side of fixing it.

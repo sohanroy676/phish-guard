@@ -17,4 +17,4 @@ Use lightweight Architecture Decision Records (ADRs) for any significant, hard-t
 - Full design docs per decision — rejected as too heavyweight for a solo/small project.
 
 ## Consequences
-Slightly more upfront writing per major decision, but decisions stay traceable across sessions and Claude chats, and future-you (or Cline) doesn't have to guess why something was done a certain way.
+Slightly more upfront writing per major decision, but decisions stay traceable across sessions and Claude chats, and future-you (or Claude Code) doesn't have to guess why something was done a certain way.
