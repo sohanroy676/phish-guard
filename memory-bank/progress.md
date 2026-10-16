@@ -10,10 +10,11 @@
 - v0.4.0 login and URL analysis: `t_low` by FPR cap (ADR 0005, retrained thresholds), `core/risk.py`, `core/explain.py`, `core/url/scoring.py`, register/login/logout with consent, server-side sessions + CSRF, `POST /api/analyze/url`, React register/login/analyze pages and result card; 178 Python tests (1 xfail) and 11 frontend tests passing; live smoke test OK — merged (5089ac5), tagged v0.4.0, pushed, CI green — 2026-10-16
 - Host-bias fix: URL model v2 reads the registered domain (ADR 0006), new split and locked test, `url_locked_v2.json`, golden Wikipedia test now passes, famous-.com golden tests xfail; 183 Python tests passing (3 xfail) — merged to main (505cdd5), pushed, CI green — 2026-10-16
 - Bug fixed in v0.2.0 code: `ftp://` URLs said "could not be read" instead of "Only http/https links can be assessed" (regression test added)
+- v0.5.0 email core and model: `core/email/{parse,mask,features,rules}.py` (stdlib), MinHash grouping, audit/prepare/train/evaluate generalised to url|email (`training/kinds.py`), `configs/email.yaml`, ADR 0007, Makefile email targets; locked and temporal evaluation run once; two leakage rounds found and fixed before evaluation; 294 Python tests passing (3 xfail) — on `feature/email-core`, not merged — 2026-10-16
 
 ## In progress
 
-- v0.5.0 (`feature/email-core`) started; email corpora downloaded into `data/raw/email/`
+- `feature/email-core` awaiting review and merge; v0.6.0 not started
 
 ## Not done in v0.4.0 (by design)
 
