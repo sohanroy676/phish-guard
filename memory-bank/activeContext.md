@@ -1,7 +1,7 @@
 # Active Context
 
 ## Current focus
-v0.4.0 (login and URL analysis) is merged (5089ac5), tagged v0.4.0 and pushed, and CI is green on main. The host-model bias fix (model v2, ADR 0006) is merged to main (505cdd5), pushed, and CI is green. v0.5.0 (email core and models) is done on `feature/email-core` and awaits review and merge; v0.6.0 (email analysis in the app) comes next.
+v0.5.0 (email core and models) is merged to main (bc39824), tagged and pushed. v0.6.0 (email analysis in the app) is done on `feature/email-app` (3 commits) and awaits review and merge. v0.7.0 (history, SSE dashboard, retention purge) comes next.
 
 ## Recent decisions
 - Band wording fixed in ADR 0002. Band policy in ADR 0005: `t_low` is the lowest threshold with OOF FPR <= 10% (`target_fpr_low`), capped at `t_high`.
@@ -23,6 +23,8 @@ v0.4.0 (login and URL analysis) is merged (5089ac5), tagged v0.4.0 and pushed, a
 - v2 locked test (35,078 rows, 8,678 phishing), lr_char: PR-AUC 0.711. At t_high (0.809) FPR 1.2%, recall 34.6%. At t_low (0.576) FPR 10.1%, recall 58.3%. rf_hand PR-AUC 0.707. Heuristic baseline 0.267.
 - v1 (PR-AUC 0.947) was inflated by the `www.` and duplicate-host artefacts and is not comparable.
 
+- v0.6.0 decisions: band order low < cant_assess < suspicious < high (`risk.higher`); email band = higher of text band and worst link band, then email rules raise it (a high rule lifts to at least Suspicious). Upload: early 413 at 2 MB, and the parser's 1 MB limit also gives 413. Header rules only with real headers (raw/upload); header warnings are listed apart from body rule warnings. Stored: `kind="email"`, HMAC (`email_hmac`), defanged sender domain in `display_host`, band, reasons, all rule messages (generic). Model reasons show only when the text model itself is High/Suspicious. Pasted-fields mode treats HTML as text, so the lookalike anchor check only works in raw/upload mode.
+
 ## Blockers / open questions
 - **Known limitation (ADR 0006):** short famous .com domains still score Suspicious/High in v2 (google.com 0.82, amazon.com 0.71, github.com 0.59). Golden test is `xfail(strict)`. Follow-up if it matters before v1.0.0: add an external legitimate-host source as v3 (needs a manual download and licence check). Don't tune on the golden hosts.
 - Email corpora are in `data/raw/email/` (git-ignored, archives and SHA-256s in `configs/email.yaml`). The user's local `.env` should set `MODEL_VERSION_EMAIL=v1` once v0.6.0 loads the email model (joblib files are git-ignored; retrain with `make`-equivalents: `python -m phishguard.training.prepare_email email` then `train email`; the locked results already exist, so `evaluate` would need `--force`, which should not be used).
@@ -31,4 +33,4 @@ v0.4.0 (login and URL analysis) is merged (5089ac5), tagged v0.4.0 and pushed, a
 - Prettier `--check .` warns on 6 root config files because of CRLF on this Windows checkout (pre-existing, `src` is clean).
 
 ## Next step
-Review and merge `feature/email-core` (not pushed, not tagged). Then v0.6.0: `/analyze/email`, load `models/email/v1` like `load_url_scorer`, combine text band with worst-link URL band, header panel, store HMAC + sender domain only. Also note `.claude/settings.json` has an uncommitted local change (the permission edit); do not commit it by accident.
+Review and merge `feature/email-app` (not pushed, not tagged; tag v0.6.0 after merge). Then v0.7.0: history, SSE dashboard, retention purge. Also note `.claude/settings.json` has an uncommitted local change (the permission edit); do not commit it by accident.

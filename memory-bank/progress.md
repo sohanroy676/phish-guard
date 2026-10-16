@@ -12,9 +12,11 @@
 - Bug fixed in v0.2.0 code: `ftp://` URLs said "could not be read" instead of "Only http/https links can be assessed" (regression test added)
 - v0.5.0 email core and model: `core/email/{parse,mask,features,rules}.py` (stdlib), MinHash grouping, audit/prepare/train/evaluate generalised to url|email (`training/kinds.py`), `configs/email.yaml`, ADR 0007, Makefile email targets; locked and temporal evaluation run once; two leakage rounds found and fixed before evaluation; 294 Python tests passing (3 xfail) — on `feature/email-core`, not merged — 2026-10-16
 
+- v0.6.0 email analysis in the app: `core/email/scoring.py`, `risk.higher/combine_email`, email reason template, `POST /api/analyze/email` (fields or raw) and `/upload`, header panel, per-link results, React `/analyze/email` with three tabs; 317 Python tests (3 xfail) and 15 frontend tests passing; live smoke test OK with real models (v2 URL, v1 email) - on `feature/email-app`, not merged - 2026-10-16
+
 ## In progress
 
-- `feature/email-core` awaiting review and merge; v0.6.0 not started
+- `feature/email-app` awaiting review and merge (not pushed, not tagged); v0.7.0 not started
 
 ## Not done in v0.4.0 (by design)
 
