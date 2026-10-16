@@ -1,15 +1,15 @@
 # Active Context
 
-<!-- Update this at the end of every session. This is the first thing to read when resuming. -->
-
 ## Current focus
-(What feature/bug is being worked on right now)
+v0.1.0 skeleton (branch `feature/skeleton`): layout, tooling, health endpoint, React shell.
 
 ## Recent decisions
-(Any choices made this session worth remembering — e.g. "chose JWT over sessions because X")
+- Band wording fixed in ADR 0002 (Likely phishing / Suspicious: be careful / No strong phishing signs found / Can't assess).
+- CI aligned to Python 3.12, requirements.lock, ruff, Node 22, gitleaks on.
+- Local machine has no `make`; Python 3.12 is available via `py -3.12`.
 
 ## Blockers / open questions
-(Anything unresolved that needs a decision before continuing)
+- Install GNU make (or run Makefile recipes by hand) on this Windows machine.
 
 ## Next step
-(The single next action to take when resuming this project)
+Finish v0.1.0 exit gate, then start v0.2.0 URL core.
