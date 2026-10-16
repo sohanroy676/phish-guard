@@ -27,9 +27,13 @@ def make_synthetic_raw(n_domains: int = 60, seed: int = 0) -> pd.DataFrame:
     return pd.DataFrame(rows, columns=["URL", "label"]).assign(y=lambda d: 1 - d["label"])
 
 
+ENGLISH = "please send the report to you and your team for the project that is on it with us"
+
+
 def _words(rng: random.Random, n: int = 40) -> str:
     # Letters only: digits would be masked to one token and make every text look identical.
-    return " ".join("".join(rng.choices("abcdefghijklmnopqrstuvwxyz", k=7)) for _ in range(n))
+    words = " ".join("".join(rng.choices("abcdefghijklmnopqrstuvwxyz", k=7)) for _ in range(n))
+    return words + " " + ENGLISH  # common English words, or the English filter drops the mail
 
 
 def _mail(subject: str, body: str, sender: str = "Sender <s@mail.example>") -> bytes:

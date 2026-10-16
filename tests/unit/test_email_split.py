@@ -7,6 +7,7 @@ from phishguard.training.prepare_email import (
     build_frame,
     check_sources,
     list_files,
+    looks_english,
     split_frame,
 )
 from synthetic import make_synthetic_emails
@@ -116,3 +117,12 @@ def test_audit_flags_source_artefacts_and_renders(built):
     text = render_markdown(stats, {"nazario/phishing-2022.mbox": "ab" * 32})
     assert "# Email data audit" in text and "Enron vs SpamAssassin" in text
     assert "nazario/phishing-2022.mbox" in text
+
+
+def test_english_filter_keeps_english_and_short_texts_and_drops_other_languages():
+    english = "please verify your account and update the password for this service at once " * 2
+    spanish = "por favor verifique su cuenta y actualice la contraseña de este servicio ahora " * 2
+    assert looks_english(english)
+    assert not looks_english(spanish)
+    assert looks_english("hola amigo")  # too short to judge
+    assert not looks_english("к ак дела " * 30)

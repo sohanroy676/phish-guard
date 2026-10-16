@@ -84,3 +84,12 @@ users
 subscription
 maintainer
 url
+# Added after the first leakage check on the trained model's top features.
+# "org" is what Nazario's domain anonymisation leaves behind (".org"); the rest are Enron names.
+org
+jeff
+john
+mark
+chris
+rpm
+power

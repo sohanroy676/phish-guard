@@ -27,6 +27,13 @@ from phishguard.training.kinds import KINDS
 from phishguard.training.minhash import group_ids
 
 MIN_WORDS = 3
+# Non-English input is out of scope and its words ("de", "en", ...) would become phishing features,
+# because the ham corpora are English. A text with almost no common English words is dropped.
+ENGLISH_WORDS = frozenset(
+    "the and to of a in is you your for that this it with on be are as we at have will not".split()
+)
+ENGLISH_MIN_SHARE = 0.08
+ENGLISH_CHECK_FROM_WORDS = 15  # shorter texts are kept: too little text to judge
 ENRON_SKIP_FOLDERS = frozenset({"deleted_items", "junk", "spam", "junk_file", "junk_mail"})
 SPAMASSASSIN_HAM_DIRS = ("easy_ham", "easy_ham_2", "hard_ham")
 META_COLUMNS = ["y", "group", "source", "year", "text", "rule_score"]
@@ -39,6 +46,13 @@ class Record:
     source: str  # nazario | spamassassin | enron
     year: int | None  # only Nazario files are dated
     raw: bytes
+
+
+def looks_english(text: str) -> bool:
+    words = text.split()
+    if len(words) < ENGLISH_CHECK_FROM_WORDS:
+        return True
+    return sum(w in ENGLISH_WORDS for w in words) / len(words) >= ENGLISH_MIN_SHARE
 
 
 def iter_nazario(directory: Path) -> Iterator[Record]:
@@ -120,6 +134,9 @@ def build_frame(records: Iterable[Record]) -> tuple[pd.DataFrame, dict[str, Any]
         text = model_text(parsed)
         if len(text.split()) < MIN_WORDS:
             bump(rec.source, "too_short")
+            continue
+        if not looks_english(text):
+            bump(rec.source, "non_english")
             continue
         key = (rec.y, hashlib.md5(text.encode("utf-8")).hexdigest())
         if key in seen:

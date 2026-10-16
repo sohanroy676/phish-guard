@@ -77,7 +77,12 @@ def test_model_text_is_masked_lowercased_and_stoplisted():
     assert text.startswith("urgent")
     for artefact in ("enron", "march", "2024", "john", "500", "a.b"):
         assert artefact not in text
-    assert "moneytoken" in text and "emailtoken" in text and "urltoken" in text
+    assert "moneytoken" in text and "emailtoken" in text
+    assert "urltoken" not in text and "numtoken" not in text  # format and era tokens are dropped
+
+
+def test_glued_number_tokens_leave_no_residue():
+    assert "numtoken" not in model_text(fields("2002-08-14T10:00:00"))
 
 
 def test_stoplist_matches_whole_words_and_phrases_only():

@@ -9,7 +9,7 @@ from functools import cache
 
 import numpy as np
 
-from phishguard.core.email.mask import MONEY_TOKEN, mask_text
+from phishguard.core.email.mask import MONEY_TOKEN, NUM_TOKEN, URL_TOKEN, mask_text
 from phishguard.core.email.parse import Link, ParsedEmail
 from phishguard.core.lists import load_list
 from phishguard.core.url.features import is_ip_host
@@ -73,6 +73,10 @@ def anchor_mismatches(links: tuple[Link, ...]) -> list[Link]:
     return out
 
 
+# Numbers and URLs say more about message format and era than about intent (dates and list
+# footers in old plain-text ham, hrefs that never reach the text of HTML phishing), so the text
+# model does not see them. Masking still produces them, other code can use them.
+_FORMAT_TOKENS_RE = re.compile(f"{NUM_TOKEN}|{URL_TOKEN}")
 _SEPARATOR_RE = re.compile(r"[_=\-*#~]{3,}")  # rulers such as "_____" or "-----" in footers
 
 
@@ -85,6 +89,7 @@ def _stoplist_re() -> re.Pattern:
 def model_text(parsed: ParsedEmail) -> str:
     """Masked, lowercased subject and body with corpus artefacts removed. Input of `lr_text`."""
     text = _SEPARATOR_RE.sub(" ", mask_text(f"{parsed.subject}\n{parsed.text}").lower())
+    text = _FORMAT_TOKENS_RE.sub(" ", text)
     return _stoplist_re().sub(" ", text)[:MODEL_TEXT_CHARS]
 
 
