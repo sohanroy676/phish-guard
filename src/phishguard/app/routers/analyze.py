@@ -55,6 +55,7 @@ def analyze_url(
         )
     )
     db.commit()
+    request.app.state.events.publish(row.user_id)
     return {
         "band": risk.band,
         "headline": risk.headline,
