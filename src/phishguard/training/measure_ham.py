@@ -16,9 +16,10 @@ from typing import Any
 
 import numpy as np
 
+from phishguard.core.email.bulk import bulk_info, is_link_wrapper
 from phishguard.core.email.parse import EmailTooLarge, NotAnEmail, ParsedEmail, parse_raw
 from phishguard.core.email.rules import run_rules as run_email_rules
-from phishguard.core.risk import HIGH, SUSPICIOUS, assess, combine_email, higher, model_band
+from phishguard.core.risk import HIGH, SUSPICIOUS, assess, email_decision, higher, model_band
 from phishguard.core.url.normalize import UnsupportedURL, normalize_url
 from phishguard.core.url.rules import run_rules as run_url_rules
 from phishguard.training.common import REPO_ROOT, resolve, write_json
@@ -42,9 +43,13 @@ def wilson(k: int, n: int, z: float = 1.96) -> list[float]:
     return [max(0.0, centre - half), min(1.0, centre + half)]
 
 
-def worst_link_band(parsed: ParsedEmail, url_scorer) -> str:
-    """Worst URL band among the distinct web links, as the app shows it."""
+def worst_link_band(parsed: ParsedEmail, url_scorer) -> tuple[str, bool]:
+    """Worst URL band among the distinct web links, as the app shows it.
+
+    Link wrappers (ADR 0008) are left out of the band; the second value says one was present.
+    """
     bands = ["low"]
+    hidden = False
     seen: set[str] = set()
     for link in parsed.links:
         if link.href in seen:
@@ -54,23 +59,30 @@ def worst_link_band(parsed: ParsedEmail, url_scorer) -> str:
             url = normalize_url(link.href)
         except UnsupportedURL:
             continue
+        if is_link_wrapper(url):
+            hidden = True
+            continue
         risk = assess(
             url_scorer.score(url), url_scorer.t_high, url_scorer.t_low, run_url_rules(url)
         )
         bands.append(risk.band)
-    return higher(*bands)
+    return higher(*bands), hidden
 
 
 def score_one(parsed: ParsedEmail, scorer, url_scorer) -> dict[str, Any]:
     hits = run_email_rules(parsed)
     score = scorer.score(parsed)
     text_band = model_band(score, scorer.t_high, scorer.t_low)
-    link_band = worst_link_band(parsed, url_scorer) if url_scorer else "low"
+    link_band, hidden = worst_link_band(parsed, url_scorer) if url_scorer else ("low", False)
+    bulk = bulk_info(parsed)
     return {
         "score": score,
         "text_band": text_band,
         "link_band": link_band,
-        "final_band": combine_email(text_band, [link_band], hits),
+        "final_band": email_decision(
+            text_band, [link_band], hits, bulk, parsed.has_raw_headers, hidden
+        ).band,
+        "bulk_mail": bulk.is_bulk,
         "rule_ids": sorted({h.rule_id for h in hits}),
         "raw_headers": parsed.has_raw_headers,
     }
@@ -97,6 +109,7 @@ def summarise(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "fpr_text_high_or_suspicious": _rate(text_flagged, n),
         "rule_hits": dict(sorted(fired.items())),
         "with_raw_headers": sum(r["raw_headers"] for r in rows),
+        "bulk_mail": sum(r.get("bulk_mail", False) for r in rows),
         "text_score": (
             {"median": float(np.median(scores)), "p90": float(np.quantile(scores, 0.9))}
             if n

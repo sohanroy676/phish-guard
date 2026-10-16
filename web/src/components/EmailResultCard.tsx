@@ -22,6 +22,14 @@ export default function EmailResultCard({ result }: { result: EmailResult }) {
             ))}
           </ul>
         )}
+        {result.bulk_mail.detected && (
+          <p>
+            Bulk mail markers found (such as an unsubscribe header).
+            {result.bulk_mail.authenticated
+              ? " The sender passed an aligned DMARC check, which does not prove the mail is safe."
+              : ""}
+          </p>
+        )}
       </section>
 
       <section aria-label="Links">
@@ -35,6 +43,12 @@ export default function EmailResultCard({ result }: { result: EmailResult }) {
             {result.links.map((link, i) => (
               <li key={`${link.display_host}-${i}`} className={`band-${link.band}`}>
                 <span className="host">{link.display_host}</span>: {link.headline}
+                {link.discounted && (
+                  <em>
+                    {" "}
+                    Link tracker or redirect: the real destination is hidden, so it is not counted.
+                  </em>
+                )}
                 {link.lookalike && (
                   <strong> Lookalike link: its text names a different site.</strong>
                 )}
