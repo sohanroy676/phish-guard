@@ -19,8 +19,9 @@ phishguard/
 │   │   ├── registry.py       # load models/<kind>/<version>/, verify SHA-256 + sklearn version
 │   │   └── lists/            # brands.txt shorteners.txt free_hosting.txt keywords.txt artefact_stoplist.txt
 │   ├── training/
-│   │   ├── audit.py          # data audit -> reports/audit_*.md
-│   │   ├── prepare_url.py  prepare_email.py   # clean, dedupe, group, split -> data/processed/*.parquet
+│   │   ├── audit.py  audit_email.py   # data audit -> reports/audit_*.md
+│   │   ├── kinds.py  minhash.py       # url/email differences; MinHash near-duplicate groups
+│   │   ├── prepare_url.py  prepare_email.py   # clean, dedupe, group, split -> data/processed/*.csv
 │   │   ├── models.py         # pipeline factories (lr_char, lr_hand, rf_hand)
 │   │   ├── train.py          # grouped CV, threshold, fit final, write models/<kind>/<version>/
 │   │   └── evaluate.py       # locked + temporal tests -> reports/results/*.json
@@ -50,13 +51,13 @@ phishguard/
 **Email analysis (`POST /api/analyze/email`, `/api/analyze/email/upload`)**
 1. Input is subject/body fields, pasted raw source, or an uploaded `.eml` (≤ 1 MB, must parse as RFC 822).
 2. `core/email/parse.py` extracts headers, text and (href, anchor text) link pairs. HTML is parsed, never rendered.
-3. Every link goes through the URL pipeline above. The highest URL score becomes an email feature.
+3. Every link goes through the URL pipeline above. The email band is the higher of the text band and the worst-link URL band (combined at band time in v0.6.0, never trained into the email model, ADR 0007).
 4. `core/email/mask.py` masks URLs, addresses and numbers, then `features.py` builds TF-IDF + structural features.
 5. `core/email/rules.py` runs header checks (topmost Authentication-Results only), Reply-To mismatch and anchor/href mismatch. Pasted fields can't trigger header rules.
 6. Band, explanations, storage (HMAC + sender domain only) and the SSE push work the same way as for URLs.
 
 **Training (offline, via Makefile)**
-`make audit` → `make prepare` (dedupe, group by registered domain / MinHash cluster, locked test split) → `make train-*` (StratifiedGroupKFold, thresholds chosen on out-of-fold dev predictions so FPR ≤ 1%, writes model + manifest) → `make evaluate` (locked test used once, plus the newest Nazario year as a temporal test).
+`make audit` / `audit-email` → `make prepare` / `prepare-email` (dedupe, group by registered domain / MinHash cluster, locked test split) → `make train-url` / `train-email` (StratifiedGroupKFold, thresholds chosen on out-of-fold dev predictions so FPR ≤ 1%, writes model + manifest) → `make evaluate` / `evaluate-email` (locked test used once, plus the newest Nazario year as a temporal test).
 
 **Live dashboard**
 `/dashboard` opens `GET /api/events` (SSE, per user). Each new analysis pushes an event, and the page refetches `GET /api/dashboard/summary`.

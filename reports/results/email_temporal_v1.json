@@ -1,0 +1,61 @@
+{
+  "beats_baseline": {
+    "lr_text": true,
+    "rf_struct": true
+  },
+  "data_sha256": "5c66859aaf272eba77f17a226067cfbeee53dbff763226bd3aead83efe9094ff",
+  "model_version": "v1",
+  "n_phishing": 390,
+  "n_test": 2273,
+  "note": "Ham mail has no dates, so the temporal set reuses the held-out locked-test ham. Its FPR is a held-out ham estimate, not a temporal measurement. Only the phishing side is temporal.",
+  "results": {
+    "heuristic_baseline": {
+      "confusion_at_t_high": {
+        "fn": 377,
+        "fp": 3,
+        "tn": 1880,
+        "tp": 13
+      },
+      "fpr_at_t_high": 0.0015932023366967605,
+      "fpr_at_t_low": 0.0015932023366967605,
+      "pr_auc": 0.19294343012171872,
+      "recall_at_t_high": 0.03333333333333333,
+      "recall_at_t_low": 0.03333333333333333,
+      "roc_auc": 0.5158700654983184,
+      "t_high": 10.0,
+      "t_low": 1.0
+    },
+    "lr_text": {
+      "confusion_at_t_high": {
+        "fn": 11,
+        "fp": 21,
+        "tn": 1862,
+        "tp": 379
+      },
+      "fpr_at_t_high": 0.011152416356877323,
+      "fpr_at_t_low": 0.08125331917153479,
+      "pr_auc": 0.9943359042892936,
+      "recall_at_t_high": 0.9717948717948718,
+      "recall_at_t_low": 0.9974358974358974,
+      "roc_auc": 0.9983999891063088,
+      "t_high": 0.2858171984386726,
+      "t_low": 0.0530007490274164
+    },
+    "rf_struct": {
+      "confusion_at_t_high": {
+        "fn": 215,
+        "fp": 18,
+        "tn": 1865,
+        "tp": 175
+      },
+      "fpr_at_t_high": 0.009559214020180564,
+      "fpr_at_t_low": 0.09346787041954328,
+      "pr_auc": 0.7885994401108943,
+      "recall_at_t_high": 0.44871794871794873,
+      "recall_at_t_low": 0.7846153846153846,
+      "roc_auc": 0.9086414205373314,
+      "t_high": 0.827484313143619,
+      "t_low": 0.2914484211999343
+    }
+  }
+}

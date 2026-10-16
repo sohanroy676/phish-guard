@@ -87,7 +87,7 @@ Each version lists what it adds, what to test, the result to expect, and red fla
 ---
 
 ## v0.5.0 Email core and email model
-**Done in this version:** `core/email/parse.py` (from the reference code), `mask.py`, `features.py`, `rules.py`; `make audit`, `make prepare`, `make train-email` and `make evaluate` for emails, with the newest Nazario year held out.
+**Done in this version:** `core/email/parse.py` (stdlib, written from scratch), `mask.py`, `features.py`, `rules.py`; `make audit`, `make prepare`, `make train-email` and `make evaluate` for emails, with the newest Nazario year held out.
 
 **Test:**
 1. `pytest tests/unit -q`
