@@ -1,7 +1,7 @@
 # Active Context
 
 ## Current focus
-v0.5.0 (email core and models) is merged to main (bc39824), tagged and pushed. v0.6.0 (email analysis in the app) is done on `feature/email-app` (3 commits) and awaits review and merge. v0.7.0 (history, SSE dashboard, retention purge) comes next.
+v0.6.0 (email analysis in the app) is merged to main (492c33b), tagged and pushed; CI green. v0.7.0 (history, SSE dashboard, retention purge) is done on `feature/history-dashboard` (2 commits) and awaits review and merge. Next: v0.8.0 per `memory-bank/detailedRoadmap.md`.
 
 ## Recent decisions
 - Band wording fixed in ADR 0002. Band policy in ADR 0005: `t_low` is the lowest threshold with OOF FPR <= 10% (`target_fpr_low`), capped at `t_high`.
@@ -25,6 +25,8 @@ v0.5.0 (email core and models) is merged to main (bc39824), tagged and pushed. v
 
 - v0.6.0 decisions: band order low < cant_assess < suspicious < high (`risk.higher`); email band = higher of text band and worst link band, then email rules raise it (a high rule lifts to at least Suspicious). Upload: early 413 at 2 MB, and the parser's 1 MB limit also gives 413. Header rules only with real headers (raw/upload); header warnings are listed apart from body rule warnings. Stored: `kind="email"`, HMAC (`email_hmac`), defanged sender domain in `display_host`, band, reasons, all rule messages (generic). Model reasons show only when the text model itself is High/Suspicious. Pasted-fields mode treats HTML as text, so the lookalike anchor check only works in raw/upload mode.
 
+- v0.7.0 decisions: SSE events are in-memory (`app/events.py`, per-user queues, drop-oldest, payload `{type: analysis}` only; the page refetches `GET /api/dashboard/summary`), so the app must run as ONE worker. `GET /api/events` needs login only (EventSource is GET). History: `GET/DELETE /api/history` with an allow-list serializer (no `input_hmac`); Delete all removes only the caller's analyses and leaves sessions. Retention: `purge_old` deletes analyses strictly older than `RETENTION_DAYS` (exactly 30 days is kept; 0 purges everything older than now) and expired sessions, at startup and daily; `retention_days` must be >= 0. TestClient cannot read endless streams, so the SSE isolation test runs a real uvicorn on loopback (`tests/integration/test_events_live.py`). No new index on `analyses` (create_all cannot alter existing DBs).
+
 ## Blockers / open questions
 - **Known limitation (ADR 0006):** short famous .com domains still score Suspicious/High in v2 (google.com 0.82, amazon.com 0.71, github.com 0.59). Golden test is `xfail(strict)`. Follow-up if it matters before v1.0.0: add an external legitimate-host source as v3 (needs a manual download and licence check). Don't tune on the golden hosts.
 - Email corpora are in `data/raw/email/` (git-ignored, archives and SHA-256s in `configs/email.yaml`). The user's local `.env` should set `MODEL_VERSION_EMAIL=v1` once v0.6.0 loads the email model (joblib files are git-ignored; retrain with `make`-equivalents: `python -m phishguard.training.prepare_email email` then `train email`; the locked results already exist, so `evaluate` would need `--force`, which should not be used).
@@ -33,4 +35,4 @@ v0.5.0 (email core and models) is merged to main (bc39824), tagged and pushed. v
 - Prettier `--check .` warns on 6 root config files because of CRLF on this Windows checkout (pre-existing, `src` is clean).
 
 ## Next step
-Review and merge `feature/email-app` (not pushed, not tagged; tag v0.6.0 after merge). Then v0.7.0: history, SSE dashboard, retention purge. Also note `.claude/settings.json` has an uncommitted local change (the permission edit); do not commit it by accident.
+Review and merge `feature/history-dashboard` (not pushed, not tagged; tag v0.7.0 after merge). `feature/email-app` is merged and can be deleted (ask the user first). `.claude/settings.json` has an uncommitted local change; never stage it.
