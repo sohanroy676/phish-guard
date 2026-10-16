@@ -6,7 +6,7 @@ PhishGuard is a web app that checks a suspicious URL or email for phishing risk 
 ## v1 goal: what "done" looks like
 Built solo in 2–3 weeks. v1 is done when all of these work:
 1. **URL detector:** offline scoring from the URL string alone. Logistic Regression on character n-grams plus a Random Forest on hand-crafted features, trained on PhiUSIIL with domain-grouped splits. Thresholds chosen on out-of-fold dev predictions for FPR ≤ 1%.
-2. **Email detector:** paste fields, paste raw source, or upload `.eml`. Text model plus the highest URL score among embedded links. Header checks run as rules. Trained on Nazario vs Enron + SpamAssassin ham, with the newest Nazario year held out.
+2. **Email detector:** paste fields, paste raw source, or upload `.eml`. Text model, combined at band time with the worst URL band among embedded links. Header checks run as rules. Trained on Nazario vs Enron + SpamAssassin ham, with the newest Nazario year held out.
 3. **Results:** a risk band (High / Suspicious / Low / Can't assess) with fixed wording, never "Safe". Two separate lists: model reasons and rule warnings.
 4. **Accounts:** register (with consent checkbox), login, private history, "Delete all", and a 30-day retention purge.
 5. **Live dashboard:** updates over SSE without a page refresh when a new analysis is recorded.

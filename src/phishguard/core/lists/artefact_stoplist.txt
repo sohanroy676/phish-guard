@@ -1,0 +1,105 @@
+# Corpus, mailing-list and date artefacts removed from the email text model input.
+# These identify where a message came from, not whether it is phishing. Entries may be phrases.
+enron
+ect
+hou
+ees
+corp
+nazario
+monkey
+jose
+spamassassin
+sourceforge
+sf.net
+ilug
+exmh
+razor
+zzzlist
+freshrpms
+listinfo
+mailman
+mailing list
+yahoo groups
+yahoogroups
+sponsored by
+original message
+forwarded by
+january
+february
+march
+april
+june
+july
+august
+september
+october
+november
+december
+jan
+feb
+mar
+apr
+jun
+jul
+aug
+sep
+sept
+oct
+nov
+dec
+monday
+tuesday
+wednesday
+thursday
+friday
+saturday
+sunday
+mon
+tue
+tues
+thu
+thur
+thurs
+fri
+# Added after the first audit (reports/audit_email.md): reply/forward markers, list footers
+# and topical words that identify the Enron or SpamAssassin corpus rather than phishing.
+re
+fw
+fwd
+wrote
+cc
+bcc
+pm
+am
+subject
+sent
+houston
+gas
+energy
+linux
+irish
+ireland
+list
+users
+subscription
+maintainer
+url
+# Added after the first leakage check on the trained model's top features.
+# "org" is what Nazario's domain anonymisation leaves behind (".org"); the rest are Enron names.
+org
+jeff
+john
+mark
+chris
+rpm
+power
+# Second leakage check: date footers, mailto, more Enron first names.
+date
+supplied
+mailto
+mike
+kay
+vince
+steve
+jenn
+ena

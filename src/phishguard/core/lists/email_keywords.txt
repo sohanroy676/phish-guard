@@ -1,0 +1,22 @@
+# Urgency and account words counted as an email structural feature
+urgent
+immediately
+suspended
+suspend
+verify
+confirm
+password
+account
+login
+sign in
+expire
+expires
+limited
+unusual activity
+security alert
+click here
+update your
+locked
+unauthorized
+action required
+within 24 hours

@@ -5,7 +5,14 @@ import pytest
 from phishguard.core.lists import load_list
 from phishguard.core.url.normalize import get_extractor, normalize_url
 
-NAMES = ["brands", "shorteners", "free_hosting", "keywords"]
+NAMES = [
+    "brands",
+    "shorteners",
+    "free_hosting",
+    "keywords",
+    "email_keywords",
+    "artefact_stoplist",
+]
 
 
 @pytest.mark.parametrize("name", NAMES)

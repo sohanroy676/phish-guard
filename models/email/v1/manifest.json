@@ -1,0 +1,73 @@
+{
+  "created_utc": "2026-10-16T10:40:36+00:00",
+  "data_sha256": "5c66859aaf272eba77f17a226067cfbeee53dbff763226bd3aead83efe9094ff",
+  "dev_rows": 9441,
+  "exclude_features": [
+    "n_links",
+    "n_link_domains",
+    "has_html"
+  ],
+  "kind": "email",
+  "models": {
+    "lr_text": {
+      "dev_oof": {
+        "fpr_at_t_high": 0.009962805526036131,
+        "fpr_at_t_low": 0.09989373007438895,
+        "pr_auc": 0.9953579229248288,
+        "recall_at_t_high": 0.9843178254051228,
+        "recall_at_t_low": 0.9947726084683742
+      },
+      "file": "lr_text.joblib",
+      "input": "text",
+      "params": {
+        "C": 10.0,
+        "max_features": 100000,
+        "ngram_range": [
+          1,
+          2
+        ]
+      },
+      "sha256": "fc69c9eedb9a94890cc8451466cf0e16f3db133c1225b455fc5c7a1ebb4b6563",
+      "t_high": 0.2858171984386726,
+      "t_low": 0.0530007490274164
+    },
+    "rf_struct": {
+      "dev_oof": {
+        "fpr_at_t_high": 0.009962805526036131,
+        "fpr_at_t_low": 0.09989373007438895,
+        "pr_auc": 0.8943653213651569,
+        "recall_at_t_high": 0.6340825927861997,
+        "recall_at_t_low": 0.882906429691584
+      },
+      "feature_names": [
+        "ip_link_ratio",
+        "shortener_links",
+        "anchor_mismatch_count",
+        "script_links",
+        "n_attachments",
+        "log_text_len",
+        "subject_len",
+        "exclaim_count",
+        "upper_ratio",
+        "money_tokens",
+        "urgency_words"
+      ],
+      "file": "rf_struct.joblib",
+      "input": "features",
+      "params": {
+        "min_samples_leaf": 3,
+        "n_estimators": 200
+      },
+      "sha256": "88096a1394eda47428b9c0b88afdfb2c3d3712180c40d03671b285a8189bfc25",
+      "t_high": 0.827484313143619,
+      "t_low": 0.2914484211999343
+    }
+  },
+  "primary": "lr_text",
+  "python_version": "3.12.12",
+  "seed": 42,
+  "sklearn_version": "1.9.1",
+  "target_fpr": 0.01,
+  "target_fpr_low": 0.1,
+  "version": "v1"
+}

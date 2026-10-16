@@ -119,10 +119,15 @@ def run(config_path: Path | None = None) -> Path:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Audit the URL dataset.")
-    parser.add_argument("kind", choices=["url"])
-    parser.parse_args()
-    print(f"Wrote {run()}")
+    parser = argparse.ArgumentParser(description="Audit the url or email data.")
+    parser.add_argument("kind", choices=["url", "email"])
+    args = parser.parse_args()
+    if args.kind == "email":
+        from phishguard.training.audit_email import run as run_email
+
+        print(f"Wrote {run_email()}")
+    else:
+        print(f"Wrote {run()}")
 
 
 if __name__ == "__main__":
