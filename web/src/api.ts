@@ -39,6 +39,27 @@ export interface EmailResult {
   model_note: string;
 }
 
+export type Kind = "url" | "email";
+
+export interface HistoryItem {
+  id: number;
+  created_at: string;
+  kind: Kind;
+  display_host: string;
+  band: Band;
+  model_reasons: string[];
+  rule_warnings: RuleWarning[];
+  model_version: string;
+}
+
+export interface DashboardSummary {
+  total: number;
+  by_band: Record<Band, number>;
+  by_kind: Record<Kind, number>;
+  trend: { date: string; count: number }[];
+  recent_high_risk: HistoryItem[];
+}
+
 export interface Account {
   email: string;
   csrf_token: string;
@@ -97,6 +118,15 @@ export const api = {
     request<EmailResult>("/api/analyze/email", "POST", { mode: "fields", subject, sender, body }),
   analyzeEmailSource: (source: string) =>
     request<EmailResult>("/api/analyze/email", "POST", { mode: "raw", source }),
+  history: (kind: string, band: string) => {
+    const params = new URLSearchParams();
+    if (kind) params.set("kind", kind);
+    if (band) params.set("band", band);
+    const query = params.toString();
+    return request<{ items: HistoryItem[] }>(`/api/history${query ? `?${query}` : ""}`, "GET");
+  },
+  deleteHistory: () => request<{ deleted: number }>("/api/history", "DELETE"),
+  dashboardSummary: () => request<DashboardSummary>("/api/dashboard/summary", "GET"),
   analyzeEmailFile: (file: File) => {
     const form = new FormData();
     form.append("file", file);
