@@ -1,0 +1,87 @@
+{
+  "created_utc": "2026-10-16T07:38:24+00:00",
+  "data_sha256": "ba41bee8b6512cc6e1676b83c8a5a8faf38d254f696978db6701cba647ebc0a5",
+  "dev_rows": 188046,
+  "exclude_features": [
+    "is_https",
+    "url_len",
+    "path_len",
+    "query_len",
+    "digit_ratio_path",
+    "special_char_count",
+    "at_count",
+    "slash_count_path",
+    "param_count",
+    "path_entropy",
+    "keyword_count",
+    "brand_in_path",
+    "double_slash_in_path"
+  ],
+  "kind": "url",
+  "models": {
+    "lr_char": {
+      "dev_oof": {
+        "fpr_at_t_high": 0.009995641974278376,
+        "pr_auc": 0.9428862978688902,
+        "recall_at_t_high": 0.7601591042282323,
+        "recall_at_t_low": 0.9500118455342336
+      },
+      "file": "lr_char.joblib",
+      "input": "host_text",
+      "params": {
+        "C": 1.0,
+        "max_features": 200000,
+        "ngram_range": [
+          2,
+          4
+        ]
+      },
+      "sha256": "b23c2222f184cbe95d70688a53d273bc71054ad4e0998fc76a878ee835816f88",
+      "t_high": 0.6191402152316362,
+      "t_low": 0.15268253358392778
+    },
+    "rf_hand": {
+      "dev_oof": {
+        "fpr_at_t_high": 0.009995641974278376,
+        "pr_auc": 0.8908422361542031,
+        "recall_at_t_high": 0.6221898028653724,
+        "recall_at_t_low": 0.9500118455342336
+      },
+      "feature_names": [
+        "host_len",
+        "dot_count",
+        "hyphen_count_host",
+        "digit_count_host",
+        "digit_ratio_host",
+        "subdomain_count",
+        "host_entropy",
+        "tld_len",
+        "has_ip_host",
+        "has_userinfo",
+        "non_default_port",
+        "is_punycode",
+        "suspicious_tld",
+        "is_shortener",
+        "is_free_hosting",
+        "brand_in_subdomain",
+        "brand_in_domain_hyphenated"
+      ],
+      "file": "rf_hand.joblib",
+      "input": "features",
+      "params": {
+        "min_samples_leaf": 3,
+        "n_estimators": 200
+      },
+      "sha256": "070451587b0ad35d781f6aa899ae305adcadaaaa0d33da04fc1a07c21fca97a4",
+      "t_high": 0.784715496613045,
+      "t_low": 0.18785534814639837
+    }
+  },
+  "primary": "lr_char",
+  "python_version": "3.12.12",
+  "seed": 42,
+  "sklearn_version": "1.9.1",
+  "target_fpr": 0.01,
+  "target_recall_low": 0.95,
+  "version": "v1"
+}

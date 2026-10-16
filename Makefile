@@ -38,6 +38,18 @@ audit-deps:
 	$(VENV_BIN)/pip-audit -r requirements.lock
 	cd web && npm audit
 
-# Data and model targets arrive with v0.3.0 and v0.5.0.
-audit prepare train-url train-email evaluate:
+audit:
+	$(PY) -m phishguard.training.audit url
+
+prepare:
+	$(PY) -m phishguard.training.prepare_url url
+
+train-url:
+	$(PY) -m phishguard.training.train url
+
+evaluate:
+	$(PY) -m phishguard.training.evaluate url
+
+# Email targets arrive with v0.5.0.
+train-email:
 	@echo "$@ is not implemented yet" && exit 1

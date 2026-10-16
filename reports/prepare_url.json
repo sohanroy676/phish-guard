@@ -1,0 +1,14 @@
+{
+  "conflicting_dropped": 84,
+  "dev_domains": 140373,
+  "dev_phishing": 80199,
+  "dev_rows": 188046,
+  "duplicates_dropped": 645,
+  "raw_rows": 235795,
+  "raw_sha256": "a236549cd369cd80bd478ff8e1779cbf44c58d5c3f79f7a51a1adbed7d06d1c6",
+  "seed": 42,
+  "test_domains": 35093,
+  "test_phishing": 20051,
+  "test_rows": 47012,
+  "unsupported": 8
+}

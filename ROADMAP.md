@@ -3,9 +3,9 @@
 Version-by-version tasks, tests and expected results are in `memory-bank/detailedRoadmap.md`.
 
 ## Now (week 1): URL detector end to end
-- v0.1.0 Project skeleton and tooling
-- v0.2.0 URL core: normalise, features, rules
-- v0.3.0 URL data audit, training and locked evaluation
+- v0.1.0 Project skeleton and tooling (done)
+- v0.2.0 URL core: normalise, features, rules (done)
+- v0.3.0 URL data audit, training and locked evaluation (done, awaiting merge)
 - v0.4.0 Login and URL analysis in the app
 
 ## Next (weeks 2–3): emails, dashboard, finish

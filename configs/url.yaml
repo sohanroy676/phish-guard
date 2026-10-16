@@ -1,0 +1,37 @@
+# URL model training config. Read by phishguard.training.*
+raw_path: data/raw/PhiUSIIL_Phishing_URL_Dataset.csv
+raw_sha256: a236549cd369cd80bd478ff8e1779cbf44c58d5c3f79f7a51a1adbed7d06d1c6
+processed_dir: data/processed
+reports_dir: reports
+models_dir: models
+version: v1
+seed: 42
+test_fraction: 0.2        # locked test = 1 of 5 grouped folds
+n_folds: 5                # grouped CV on dev
+target_fpr: 0.01          # t_high: dev out-of-fold FPR <= this
+target_recall_low: 0.95   # t_low: highest threshold keeping this phishing recall
+# PhiUSIIL leaks through scheme and path: every legitimate URL is https with an empty path
+# (see reports/audit_url.md). The RF therefore sees host-derived features only.
+exclude_features:
+  - is_https
+  - url_len
+  - path_len
+  - query_len
+  - digit_ratio_path
+  - special_char_count
+  - at_count
+  - slash_count_path
+  - param_count
+  - path_entropy
+  - keyword_count
+  - brand_in_path
+  - double_slash_in_path
+
+grids:
+  lr_char:
+    C: [1.0, 10.0]
+    ngram_range: [[2, 4]]
+    max_features: [200000]
+  rf_hand:
+    n_estimators: [200]
+    min_samples_leaf: [1, 3]

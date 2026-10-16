@@ -1,0 +1,60 @@
+{
+  "beats_baseline": {
+    "lr_char": true,
+    "rf_hand": true
+  },
+  "data_sha256": "ba41bee8b6512cc6e1676b83c8a5a8faf38d254f696978db6701cba647ebc0a5",
+  "model_version": "v1",
+  "n_phishing": 20051,
+  "n_test": 47012,
+  "results": {
+    "heuristic_baseline": {
+      "confusion_at_t_high": {
+        "fn": 19634,
+        "fp": 1,
+        "tn": 26960,
+        "tp": 417
+      },
+      "fpr_at_t_high": 3.709061236601016e-05,
+      "fpr_at_t_low": 7.418122473202032e-05,
+      "pr_auc": 0.45587959366327996,
+      "recall_at_t_high": 0.02079696773228268,
+      "recall_at_t_low": 0.051369009026981195,
+      "roc_auc": 0.525647393553175,
+      "t_high": 10.0,
+      "t_low": 1.0
+    },
+    "lr_char": {
+      "confusion_at_t_high": {
+        "fn": 4525,
+        "fp": 258,
+        "tn": 26703,
+        "tp": 15526
+      },
+      "fpr_at_t_high": 0.009569377990430622,
+      "fpr_at_t_low": 0.45929305292830386,
+      "pr_auc": 0.9473684024647354,
+      "recall_at_t_high": 0.774325470051369,
+      "recall_at_t_low": 0.953917510348611,
+      "roc_auc": 0.9418497935416573,
+      "t_high": 0.6191402152316362,
+      "t_low": 0.15268253358392778
+    },
+    "rf_hand": {
+      "confusion_at_t_high": {
+        "fn": 7166,
+        "fp": 260,
+        "tn": 26701,
+        "tp": 12885
+      },
+      "fpr_at_t_high": 0.009643559215162642,
+      "fpr_at_t_low": 0.7589481102333,
+      "pr_auc": 0.8954139603431145,
+      "recall_at_t_high": 0.6426113410802454,
+      "recall_at_t_low": 0.9498778115804698,
+      "roc_auc": 0.8758820047638213,
+      "t_high": 0.784715496613045,
+      "t_low": 0.18785534814639837
+    }
+  }
+}

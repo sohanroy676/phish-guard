@@ -4,6 +4,9 @@ import ipaddress
 import math
 import re
 from collections import Counter
+from collections.abc import Iterable
+
+import numpy as np
 
 from phishguard.core.lists import load_list
 from phishguard.core.url.normalize import NormalizedURL, normalize_url
@@ -72,10 +75,21 @@ def _digit_ratio(s: str) -> float:
     return sum(ch.isdigit() for ch in s) / len(s) if s else 0.0
 
 
+def url_text(url: NormalizedURL | str) -> str:
+    """Host + path + query without the scheme. Text input for the n-gram model."""
+    u = normalize_url(url) if isinstance(url, str) else url
+    return f"{u.host}{u.path}" + (f"?{u.query}" if u.query else "")
+
+
+def host_text(url: NormalizedURL | str) -> str:
+    """Host only. Input for the n-gram model, which must not learn from path or scheme."""
+    return (normalize_url(url) if isinstance(url, str) else url).host
+
+
 def url_features(url: NormalizedURL | str) -> dict[str, float]:
     """Return features in FEATURE_NAMES order, always the same keys."""
     u = normalize_url(url) if isinstance(url, str) else url
-    full = f"{u.host}{u.path}" + (f"?{u.query}" if u.query else "")
+    full = url_text(u)
     path_q = u.path + u.query
     sub_labels = [x for x in u.subdomain.split(".") if x]
     reg_dom = u.registrable
@@ -120,3 +134,8 @@ def url_features(url: NormalizedURL | str) -> dict[str, float]:
 
 def feature_vector(url: NormalizedURL | str) -> list[float]:
     return list(url_features(url).values())
+
+
+def feature_matrix(urls: Iterable[NormalizedURL | str]) -> np.ndarray:
+    """One row per URL, columns in FEATURE_NAMES order."""
+    return np.array([feature_vector(u) for u in urls], dtype=float).reshape(-1, len(FEATURE_NAMES))
