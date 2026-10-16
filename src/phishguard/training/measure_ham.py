@@ -43,10 +43,13 @@ def wilson(k: int, n: int, z: float = 1.96) -> list[float]:
     return [max(0.0, centre - half), min(1.0, centre + half)]
 
 
-def worst_link_band(parsed: ParsedEmail, url_scorer) -> tuple[str, bool]:
+def worst_link_band(
+    parsed: ParsedEmail, url_scorer, skip_wrappers: bool = True
+) -> tuple[str, bool]:
     """Worst URL band among the distinct web links, as the app shows it.
 
     Link wrappers (ADR 0008) are left out of the band; the second value says one was present.
+    `skip_wrappers=False` scores them like any link (the pre-gate behaviour).
     """
     bands = ["low"]
     hidden = False
@@ -59,7 +62,7 @@ def worst_link_band(parsed: ParsedEmail, url_scorer) -> tuple[str, bool]:
             url = normalize_url(link.href)
         except UnsupportedURL:
             continue
-        if is_link_wrapper(url):
+        if skip_wrappers and is_link_wrapper(url):
             hidden = True
             continue
         risk = assess(
