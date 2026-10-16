@@ -20,7 +20,7 @@
 
 ## In progress
 
-- Post-v1: modern-ham measurement tool built on `feature/email-modern-ham-measure` (7 new tests, 368 fast tests passing, lint clean); waiting for the user's .eml samples before measuring — 2026-10-16
+- Post-v1: modern-ham measurement tool built on `feature/email-modern-ham-measure` (7 new tests, 368 fast tests passing, lint clean); measured on 123 own messages: 100% flagged Suspicious/High, ADR 0007 addendum written, awaiting the user's choice of fix — 2026-10-16
 
 - Nothing in progress. v1.0.0 merged (8b9265a), pushed, CI green, tagged; the user's manual checks and Wi-Fi-off pass are done and passed (2026-10-16)
 
