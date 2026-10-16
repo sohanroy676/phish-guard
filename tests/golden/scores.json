@@ -1,0 +1,36 @@
+{
+  "url_version": "v2",
+  "email_version": "v1",
+  "url": {
+    "https://en.wikipedia.org/wiki/Phishing": {
+      "score": 0.132442,
+      "band": "low"
+    },
+    "http://paypal.com.secure-login-verify.xyz/account/update": {
+      "score": 0.99855,
+      "band": "high"
+    },
+    "http://192.168.0.1/login": {
+      "score": 0.96199,
+      "band": "high"
+    },
+    "https://xn--pple-43d.com/signin": {
+      "score": 0.934807,
+      "band": "high"
+    }
+  },
+  "email": {
+    "fields_phish": {
+      "score": 0.992007,
+      "band": "high"
+    },
+    "fields_ham": {
+      "score": 0.009222,
+      "band": "low"
+    },
+    "raw_phish": {
+      "score": 0.997863,
+      "band": "high"
+    }
+  }
+}
