@@ -1,0 +1,15 @@
+# URL shortener registrable domains
+bit.ly
+tinyurl.com
+t.co
+goo.gl
+ow.ly
+is.gd
+buff.ly
+cutt.ly
+rebrand.ly
+shorturl.at
+tiny.cc
+rb.gy
+t.ly
+bl.ink

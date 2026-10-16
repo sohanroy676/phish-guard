@@ -1,0 +1,17 @@
+# Words common in phishing URLs
+login
+signin
+verify
+verification
+secure
+account
+update
+confirm
+password
+billing
+payment
+suspend
+unlock
+banking
+wallet
+invoice

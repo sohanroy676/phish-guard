@@ -1,0 +1,27 @@
+# Brand tokens commonly impersonated (lowercase, one per line)
+paypal
+apple
+microsoft
+google
+amazon
+netflix
+facebook
+instagram
+whatsapp
+linkedin
+dropbox
+docusign
+wellsfargo
+bankofamerica
+citibank
+hsbc
+barclays
+dhl
+fedex
+usps
+coinbase
+binance
+steam
+adobe
+office365
+outlook
