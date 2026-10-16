@@ -1,7 +1,7 @@
 # Pre-Deploy Checklist
 
 <!-- Run through this before deploying anywhere real users/traffic can reach. 
-     Have Cline check each item against the actual code, don't just eyeball it. -->
+     Have Claude Code check each item against the actual code, don't just eyeball it. -->
 
 ## Security
 - [ ] No secrets/API keys hardcoded anywhere in source (check `.env` is used, and is in `.gitignore`)

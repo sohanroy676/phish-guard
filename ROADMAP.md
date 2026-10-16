@@ -1,6 +1,6 @@
 # Roadmap
 
-Version-by-version tasks, tests and expected results are in DETAILED_ROADMAP.md.
+Version-by-version tasks, tests and expected results are in `memory-bank/detailedRoadmap.md`.
 
 ## Now (week 1): URL detector end to end
 - v0.1.0 Project skeleton and tooling
