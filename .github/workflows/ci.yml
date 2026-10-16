@@ -44,6 +44,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # gitleaks scans the PR's commit range, so it needs full history
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
