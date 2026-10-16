@@ -7,9 +7,9 @@ router = APIRouter(prefix="/api")
 
 @router.get("/health")
 def health(request: Request) -> dict:
-    scorer = request.app.state.url_scorer
+    scorers = {"url": request.app.state.url_scorer, "email": request.app.state.email_scorer}
     return {
         "status": "ok",
         "db": "ok" if db_is_ok(request.app.state.engine) else "error",
-        "models": {"url": scorer.version} if scorer else {},
+        "models": {k: v.version for k, v in scorers.items() if v},
     }
