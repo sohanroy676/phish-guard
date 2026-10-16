@@ -2,7 +2,13 @@ import math
 
 import pytest
 
-from phishguard.core.url.features import FEATURE_NAMES, feature_vector, url_features
+from phishguard.core.url.features import (
+    FEATURE_NAMES,
+    feature_matrix,
+    feature_vector,
+    url_features,
+    url_text,
+)
 
 INPUTS = [
     "https://example.com",
@@ -64,3 +70,21 @@ def test_invalid_input_raises_not_garbage():
 
     with pytest.raises(UnsupportedURL):
         url_features("ftp://example.com")
+
+
+def test_url_text_has_no_scheme_and_keeps_query():
+    assert url_text("HTTPS://Example.com/a/b?x=1") == "example.com/a/b?x=1"
+    assert url_text("http://example.com") == "example.com"
+    assert url_text("http://example.com/?") == "example.com/"
+
+
+def test_url_text_length_matches_url_len_feature():
+    url = "https://login.example.co.uk/a?b=c"
+    assert url_features(url)["url_len"] == len(url_text(url))
+
+
+def test_feature_matrix_shape_and_empty():
+    m = feature_matrix(["http://a.com", "https://b.org/x"])
+    assert m.shape == (2, len(FEATURE_NAMES))
+    assert m[0].tolist() == feature_vector("http://a.com")
+    assert feature_matrix([]).shape == (0, len(FEATURE_NAMES))
