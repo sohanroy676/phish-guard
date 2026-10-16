@@ -3,15 +3,19 @@
 from typing import Any
 
 TOP_REASONS = 4
+URL_REASON = 'The host contains "{frag}", a pattern common in phishing links.'
+EMAIL_REASON = 'The email text contains "{frag}", a pattern common in phishing emails.'
 
 
-def lr_reasons(pipeline: Any, host: str, limit: int = TOP_REASONS) -> list[str]:
-    """Return the host fragments that push the score toward phishing, strongest first.
+def lr_reasons(
+    pipeline: Any, text: str, limit: int = TOP_REASONS, template: str = URL_REASON
+) -> list[str]:
+    """Return the text fragments that push the score toward phishing, strongest first.
 
     Fragments contained in an already chosen, stronger fragment are skipped.
     """
     tfidf, lr = pipeline.named_steps["tfidf"], pipeline.named_steps["lr"]
-    row = tfidf.transform([host])
+    row = tfidf.transform([text])
     names = tfidf.get_feature_names_out()
     coef = lr.coef_[0]
     pairs = sorted(
@@ -24,4 +28,4 @@ def lr_reasons(pipeline: Any, host: str, limit: int = TOP_REASONS) -> list[str]:
             break
         if fragment.strip() and not any(fragment in c for c in chosen):
             chosen.append(fragment)
-    return [f'The host contains "{frag}", a pattern common in phishing links.' for frag in chosen]
+    return [template.format(frag=frag) for frag in chosen]

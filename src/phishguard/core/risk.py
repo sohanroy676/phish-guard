@@ -66,6 +66,27 @@ def combine(band: str, hits: Iterable[RuleHit]) -> str:
     return band
 
 
+# Can't assess only comes from a hidden (shortened) destination, so it ranks above a clean Low
+# but below an actual warning.
+_RANK = {LOW: 0, CANT_ASSESS: 1, SUSPICIOUS: 2, HIGH: 3}
+
+
+def higher(*bands: str) -> str:
+    return max(bands, key=_RANK.__getitem__)
+
+
+def combine_email(text_band: str, link_bands: Iterable[str], hits: Iterable[RuleHit]) -> str:
+    """Email band: the highest of the text band and every link band, then rules raise it.
+
+    Rules never lower a band. A high-severity rule lifts Low or Can't assess to Suspicious.
+    """
+    hits = list(hits)
+    band = combine(higher(text_band, *link_bands), hits)
+    if any(h.severity == "high" for h in hits):
+        band = higher(band, SUSPICIOUS)
+    return band
+
+
 def assess(score: float, t_high: float, t_low: float, hits: Iterable[RuleHit]) -> Risk:
     band = combine(model_band(score, t_high, t_low), hits)
     return Risk(band, HEADLINES[band], ADVICE[band], ADVISORY_FOOTER)
