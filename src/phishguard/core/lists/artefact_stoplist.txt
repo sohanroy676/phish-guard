@@ -93,3 +93,13 @@ mark
 chris
 rpm
 power
+# Second leakage check: date footers, mailto, more Enron first names.
+date
+supplied
+mailto
+mike
+kay
+vince
+steve
+jenn
+ena
