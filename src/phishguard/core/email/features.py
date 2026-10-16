@@ -73,6 +73,9 @@ def anchor_mismatches(links: tuple[Link, ...]) -> list[Link]:
     return out
 
 
+_SEPARATOR_RE = re.compile(r"[_=\-*#~]{3,}")  # rulers such as "_____" or "-----" in footers
+
+
 @cache
 def _stoplist_re() -> re.Pattern:
     entries = sorted(load_list("artefact_stoplist"), key=len, reverse=True)
@@ -81,7 +84,7 @@ def _stoplist_re() -> re.Pattern:
 
 def model_text(parsed: ParsedEmail) -> str:
     """Masked, lowercased subject and body with corpus artefacts removed. Input of `lr_text`."""
-    text = mask_text(f"{parsed.subject}\n{parsed.text}").lower()
+    text = _SEPARATOR_RE.sub(" ", mask_text(f"{parsed.subject}\n{parsed.text}").lower())
     return _stoplist_re().sub(" ", text)[:MODEL_TEXT_CHARS]
 
 

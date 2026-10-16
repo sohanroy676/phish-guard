@@ -86,6 +86,12 @@ def test_stoplist_matches_whole_words_and_phrases_only():
     assert "yahoo" not in text and "groups" not in text
 
 
+def test_separator_rulers_are_removed():
+    text = model_text(fields("hello\n_______________________________\n-----\nworld ==== end"))
+    assert "_" not in text and "---" not in text and "===" not in text
+    assert "hello" in text and "world" in text
+
+
 def test_model_text_is_capped():
     assert len(model_text(fields("word " * 50_000))) == MODEL_TEXT_CHARS
 

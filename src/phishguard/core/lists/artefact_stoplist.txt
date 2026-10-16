@@ -61,3 +61,26 @@ thu
 thur
 thurs
 fri
+# Added after the first audit (reports/audit_email.md): reply/forward markers, list footers
+# and topical words that identify the Enron or SpamAssassin corpus rather than phishing.
+re
+fw
+fwd
+wrote
+cc
+bcc
+pm
+am
+subject
+sent
+houston
+gas
+energy
+linux
+irish
+ireland
+list
+users
+subscription
+maintainer
+url

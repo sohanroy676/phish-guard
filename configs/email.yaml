@@ -13,8 +13,8 @@ test_fraction: 0.2        # locked test = 1 of 5 grouped folds of everything exc
 n_folds: 5                # grouped CV on dev
 target_fpr: 0.01
 target_fpr_low: 0.10
-enron_sample: null        # set once from audit_email.md (see ADR 0007), then fixed
-exclude_features: []      # filled from the audit's source-artefact flags
+enron_sample: 6000        # about 2x the kept Nazario mail (3,042 in the first audit); fixed, see ADR 0007
+exclude_features: [n_links, n_link_domains, has_html]  # corpus-era artefacts, see ADR 0007
 sources:                  # SHA-256 of every raw file the data is built from
   nazario/phishing-2015.mbox: 7523e62a5e6e4ee8134ab8b1a628e423097a7779e1003b28422864aa34f1c319
   nazario/phishing-2016.mbox: 42393e4d686193bfb879d1608c23fd4d3b698ccd4d73f0e1d2276ba709718483
