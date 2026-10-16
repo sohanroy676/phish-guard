@@ -1,0 +1,63 @@
+# Corpus, mailing-list and date artefacts removed from the email text model input.
+# These identify where a message came from, not whether it is phishing. Entries may be phrases.
+enron
+ect
+hou
+ees
+corp
+nazario
+monkey
+jose
+spamassassin
+sourceforge
+sf.net
+ilug
+exmh
+razor
+zzzlist
+freshrpms
+listinfo
+mailman
+mailing list
+yahoo groups
+yahoogroups
+sponsored by
+original message
+forwarded by
+january
+february
+march
+april
+june
+july
+august
+september
+october
+november
+december
+jan
+feb
+mar
+apr
+jun
+jul
+aug
+sep
+sept
+oct
+nov
+dec
+monday
+tuesday
+wednesday
+thursday
+friday
+saturday
+sunday
+mon
+tue
+tues
+thu
+thur
+thurs
+fri
