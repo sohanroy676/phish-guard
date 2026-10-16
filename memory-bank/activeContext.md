@@ -1,7 +1,7 @@
 # Active Context
 
 ## Current focus
-v0.6.0 (email analysis in the app) is merged to main (492c33b), tagged and pushed; CI green. v0.7.0 (history, SSE dashboard, retention purge) is done on `feature/history-dashboard` (2 commits) and awaits review and merge. Next: v0.8.0 per `memory-bank/detailedRoadmap.md`.
+v0.7.0 (history, SSE dashboard, retention purge) is merged to main (57a5943), tagged v0.7.0 and pushed; CI green. There is no v0.8.0: the roadmap goes v0.7.0 -> v1.0.0, so v1.0.0 hardening is done on `feature/v1-hardening` (7 commits, not pushed, not merged, not tagged) and awaits review. The final `make evaluate` of v1.0.0 was skipped on purpose (locked results already exist; never re-run or --force).
 
 ## Recent decisions
 - Band wording fixed in ADR 0002. Band policy in ADR 0005: `t_low` is the lowest threshold with OOF FPR <= 10% (`target_fpr_low`), capped at `t_high`.
@@ -27,6 +27,10 @@ v0.6.0 (email analysis in the app) is merged to main (492c33b), tagged and pushe
 
 - v0.7.0 decisions: SSE events are in-memory (`app/events.py`, per-user queues, drop-oldest, payload `{type: analysis}` only; the page refetches `GET /api/dashboard/summary`), so the app must run as ONE worker. `GET /api/events` needs login only (EventSource is GET). History: `GET/DELETE /api/history` with an allow-list serializer (no `input_hmac`); Delete all removes only the caller's analyses and leaves sessions. Retention: `purge_old` deletes analyses strictly older than `RETENTION_DAYS` (exactly 30 days is kept; 0 purges everything older than now) and expired sessions, at startup and daily; `retention_days` must be >= 0. TestClient cannot read endless streams, so the SSE isolation test runs a real uvicorn on loopback (`tests/integration/test_events_live.py`). No new index on `analyses` (create_all cannot alter existing DBs).
 
+## v1.0.0 decisions
+- Golden scores in `tests/golden/scores.json` (regenerate with `python tests/golden/test_scores.py` only with a model version bump). `tests/integration/test_offline.py` blocks DNS and connects. `SPAFiles` in `app/main.py` serves `index.html` for client routes (a refresh on `/history` used to 404; found by the live smoke test). Starlette passes `\` paths on Windows, so normalise before checking `api/`.
+- README documents install, train, run, test and known limits. The 2 react-router npm findings are unreachable (hardcoded navigation targets, no SSR) and recorded in README. `web/.prettierrc` has `endOfLine: auto` so `npm run lint` passes on CRLF checkouts (`core.autocrlf=true`).
+
 ## Blockers / open questions
 - **Known limitation (ADR 0006):** short famous .com domains still score Suspicious/High in v2 (google.com 0.82, amazon.com 0.71, github.com 0.59). Golden test is `xfail(strict)`. Follow-up if it matters before v1.0.0: add an external legitimate-host source as v3 (needs a manual download and licence check). Don't tune on the golden hosts.
 - Email corpora are in `data/raw/email/` (git-ignored, archives and SHA-256s in `configs/email.yaml`). The user's local `.env` should set `MODEL_VERSION_EMAIL=v1` once v0.6.0 loads the email model (joblib files are git-ignored; retrain with `make`-equivalents: `python -m phishguard.training.prepare_email email` then `train email`; the locked results already exist, so `evaluate` would need `--force`, which should not be used).
@@ -35,4 +39,4 @@ v0.6.0 (email analysis in the app) is merged to main (492c33b), tagged and pushe
 - Prettier `--check .` warns on 6 root config files because of CRLF on this Windows checkout (pre-existing, `src` is clean).
 
 ## Next step
-Review and merge `feature/history-dashboard` (not pushed, not tagged; tag v0.7.0 after merge). `feature/email-app` is merged and can be deleted (ask the user first). `.claude/settings.json` has an uncommitted local change; never stage it.
+Review `feature/v1-hardening`, then merge with `git merge -m`, and only after a successful merge tag v1.0.0 and push (ask the user first). The manual offline pass is still the user's to do: build with `npm --prefix web run build`, `make app`, turn Wi-Fi off, use every page. Open follow-ups (not v1 blockers): v3 URL model with an external legitimate-host source (ADR 0006); FPR of the email model on modern legitimate mail (ADR 0007). `.claude/settings.json` has an uncommitted local change; never stage it.
