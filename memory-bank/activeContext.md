@@ -1,7 +1,7 @@
 # Active Context
 
 ## Current focus
-v0.4.0 (login and URL analysis) is merged (5089ac5), tagged v0.4.0 and pushed, and CI is green on main. The host-model bias fix (model v2, ADR 0006) is done on `fix/host-bias` and awaits review and merge. Email work (v0.5.0, `feature/email-core`) comes next.
+v0.4.0 (login and URL analysis) is merged (5089ac5), tagged v0.4.0 and pushed, and CI is green on main. The host-model bias fix (model v2, ADR 0006) is merged to main (505cdd5), pushed, and CI is green. Email work (v0.5.0) is in progress on `feature/email-core`.
 
 ## Recent decisions
 - Band wording fixed in ADR 0002. Band policy in ADR 0005: `t_low` is the lowest threshold with OOF FPR <= 10% (`target_fpr_low`), capped at `t_high`.
@@ -28,4 +28,4 @@ v0.4.0 (login and URL analysis) is merged (5089ac5), tagged v0.4.0 and pushed, a
 - Prettier `--check .` warns on 6 root config files because of CRLF on this Windows checkout (pre-existing, `src` is clean).
 
 ## Next step
-Review and merge `fix/host-bias`. Then v0.5.0 on `feature/email-core` (plan in the session notes: parse, mask, rules first; MinHash grouping, prepare, audit, train and evaluate once the data is in place).
+v0.5.0 on `feature/email-core`: parse, mask, features and rules first; then MinHash grouping, prepare, audit, train and evaluate on the corpora in `data/raw/email/`.
