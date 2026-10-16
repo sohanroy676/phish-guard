@@ -42,6 +42,39 @@ def test_non_fail_results_stay_quiet(value):
     assert ids(mail(f"Authentication-Results: mx; {value}\n")) == []
 
 
+def test_dmarc_fail_under_monitor_only_policy_is_not_a_failure():
+    raw = mail(
+        "Authentication-Results: mx; dkim=pass header.i=@esp.example; spf=pass; "
+        "dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=good.com\n"
+    )
+    assert ids(raw) == []
+
+
+def test_dmarc_fail_under_enforcing_policy_fires():
+    raw = mail(
+        "Authentication-Results: mx; spf=pass; dmarc=fail (p=REJECT sp=REJECT) header.from=x\n"
+    )
+    assert ids(raw) == ["auth_fail"]
+
+
+def test_monitor_only_dmarc_does_not_hide_a_real_spf_failure():
+    raw = mail("Authentication-Results: mx; spf=fail; dmarc=fail (p=NONE) header.from=x\n")
+    hits = run_rules(parse_raw(raw))
+    assert [h.rule_id for h in hits] == ["auth_fail"]
+    assert "SPF" in hits[0].message and "DMARC" not in hits[0].message
+
+
+def test_one_failed_dkim_signature_is_ignored_when_another_passes():
+    raw = mail(
+        "Authentication-Results: mx; dkim=fail header.i=@a; dkim=pass header.i=@b; spf=pass\n"
+    )
+    assert ids(raw) == []
+
+
+def test_a_passing_method_does_not_cancel_a_different_failing_one():
+    assert ids(mail("Authentication-Results: mx; dkim=pass; spf=fail\n")) == ["auth_fail"]
+
+
 def test_fail_word_in_another_header_is_ignored():
     assert ids(mail("X-Note: spf=fail\n")) == []
 
