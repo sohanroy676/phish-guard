@@ -7,7 +7,7 @@ endif
 PY := $(VENV_BIN)/python
 PYTHON_VERSION := 3.12
 
-.PHONY: setup app test test-all lint format audit prepare train-url train-email evaluate audit-deps
+.PHONY: setup app test test-all lint format audit audit-email prepare prepare-email train-url train-email evaluate evaluate-email audit-deps
 
 setup:
 	python -m venv .venv || uv venv --python $(PYTHON_VERSION) .venv
@@ -50,6 +50,14 @@ train-url:
 evaluate:
 	$(PY) -m phishguard.training.evaluate url
 
-# Email targets arrive with v0.5.0.
+audit-email:
+	$(PY) -m phishguard.training.audit_email email
+
+prepare-email:
+	$(PY) -m phishguard.training.prepare_email email
+
 train-email:
-	@echo "$@ is not implemented yet" && exit 1
+	$(PY) -m phishguard.training.train email
+
+evaluate-email:
+	$(PY) -m phishguard.training.evaluate email

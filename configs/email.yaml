@@ -1,0 +1,36 @@
+# Email model training config. Read by phishguard.training.*
+# Corpora (downloaded once by hand, never by the app):
+#   Nazario phishing corpus, CC-BY-4.0, https://monkey.org/~jose/phishing/ (phishing-YYYY mboxes)
+#   Apache SpamAssassin public corpus 20030228, ham only: easy_ham, easy_ham_2, hard_ham
+#   Enron email dataset (CMU, 2015-05-07 maildir), a seeded sample is used as ham
+raw_dir: data/raw/email
+processed_dir: data/processed
+reports_dir: reports
+models_dir: models
+version: v1
+seed: 42
+test_fraction: 0.2        # locked test = 1 of 5 grouped folds of everything except the newest year
+n_folds: 5                # grouped CV on dev
+target_fpr: 0.01
+target_fpr_low: 0.10
+enron_sample: null        # set once from audit_email.md (see ADR 0007), then fixed
+exclude_features: []      # filled from the audit's source-artefact flags
+sources:                  # SHA-256 of every raw file the data is built from
+  nazario/phishing-2015.mbox: 7523e62a5e6e4ee8134ab8b1a628e423097a7779e1003b28422864aa34f1c319
+  nazario/phishing-2016.mbox: 42393e4d686193bfb879d1608c23fd4d3b698ccd4d73f0e1d2276ba709718483
+  nazario/phishing-2017.mbox: 110fba876b38b44035bf065788952674bc68a7b6879c345a515a9ac844b1d704
+  nazario/phishing-2018.mbox: 83f49cf2a76c7b29b205d22d8778e46848e36af0f15ee1df126a543696acd48d
+  nazario/phishing-2019.mbox: cab39d6fcb38cf80cdaabb3e6ffd1222777e2fcaac7e8480321b7f729c2e3c0e
+  nazario/phishing-2020.mbox: 99e20bf25f5e8556d37103f2c8140cd75181a62d3df91df8acf9d9aece9f08bb
+  nazario/phishing-2021.mbox: 636707cff42245d1482e4ae8a2c03369717a5e06bf9d1a0f4ec5dcd846661cee
+  nazario/phishing-2022.mbox: a6291e2cb990204766fce425423949b403cce4ae6a660fc8d08812e40a063fa7
+  nazario/phishing-2023.mbox: 5007f1c1dc91b15e93e988afa3a1cf402e15c88f765d3057be8bfec50dae1fe8
+  nazario/phishing-2024.mbox: 60afa40a2757170093a2bde31ec9cda4e54d33992203ce04bfbbc86d2e5e5b99
+  nazario/phishing-2025.mbox: f1fa7e0fe35c9a16f36d9aa20ade7e1d3908d1d0c1d917b8c53c8aa799ec1c8f
+  _archives/20030228_easy_ham.tar.bz2: 2b7b65904bcfcc31d2b5f51946f2d261370b257402cbbd62930b46ab83367438
+  _archives/20030228_easy_ham_2.tar.bz2: b4bd3dc5ae5b40f38e99a0e41ad7d16b428b56e818e3a6ffa07330d62004dd38
+  _archives/20030228_hard_ham.tar.bz2: ce2ce67880643dbde65ea7f85bffbfe4417349c4bd80b6b0de56262ae6b0a9c9
+  _archives/enron_mail_20150507.tar.gz: b3da1b3fe0369ec3140bb4fbce94702c33b7da810ec15d718b3fadf5cd748ca7
+grids:
+  lr_text: {C: [1.0, 10.0], ngram_range: [[1, 2]], max_features: [100000]}
+  rf_struct: {n_estimators: [200], min_samples_leaf: [1, 3]}

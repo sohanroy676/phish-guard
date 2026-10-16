@@ -32,6 +32,8 @@ FEATURE_NAMES: tuple[str, ...] = (
     "urgency_words",
 )
 
+MODEL_TEXT_CHARS = 20_000  # the text model reads at most this much, in training and serving alike
+
 # An anchor that is itself a domain or URL, e.g. "www.paypal.com" or "https://bank.com/login".
 _ANCHOR_DOMAIN_RE = re.compile(r"^(?:https?://)?[^\s/:?#]+\.[^\s/:?#]+(?:[/:?#]\S*)?$")
 
@@ -80,7 +82,7 @@ def _stoplist_re() -> re.Pattern:
 def model_text(parsed: ParsedEmail) -> str:
     """Masked, lowercased subject and body with corpus artefacts removed. Input of `lr_text`."""
     text = mask_text(f"{parsed.subject}\n{parsed.text}").lower()
-    return _stoplist_re().sub(" ", text)
+    return _stoplist_re().sub(" ", text)[:MODEL_TEXT_CHARS]
 
 
 def email_features(parsed: ParsedEmail) -> dict[str, float]:

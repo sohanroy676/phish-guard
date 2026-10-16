@@ -4,6 +4,7 @@ import pytest
 
 from phishguard.core.email.features import (
     FEATURE_NAMES,
+    MODEL_TEXT_CHARS,
     anchor_mismatches,
     email_features,
     feature_matrix,
@@ -83,6 +84,10 @@ def test_stoplist_matches_whole_words_and_phrases_only():
     text = model_text(fields("Decision on corporate matters, from Yahoo Groups. Marching band."))
     assert "corporate" in text and "marching" in text
     assert "yahoo" not in text and "groups" not in text
+
+
+def test_model_text_is_capped():
+    assert len(model_text(fields("word " * 50_000))) == MODEL_TEXT_CHARS
 
 
 @pytest.mark.parametrize("name", ["artefact_stoplist", "email_keywords"])
