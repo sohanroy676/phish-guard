@@ -3,6 +3,11 @@
 ## Current focus
 v1.0.0 is merged to main (8b9265a), pushed, CI green, and tagged v1.0.0. v0.7.0 is tagged too. There was never a v0.8.0. v1 is feature-complete and the user's manual pass is done: all roadmap checks and the Wi-Fi-off pass looked right (2026-10-16). The v1.0.0 `make evaluate` was skipped on purpose (never re-run or --force).
 
+## In progress (post-v1 item 1)
+- Branch `feature/email-modern-ham-measure` (not merged): `training/measure_ham.py` + `tests/unit/test_measure_ham.py` committed (1f7eaef). It measures the email model on a folder of .eml (subfolder = category) and writes counts only to `reports/results/email_modern_ham_<label>.json`; it never overwrites and never trains.
+- Waiting on the user's samples in `data/raw/email_modern/own/<category>/*.eml` (git-ignored; folders exist). A web search found no open, real 2020s ham corpus; PrivacyMail (Zenodo, newsletters only) is request-only with no licence, so it is not assumed. Then run `python -m phishguard.training.measure_ham --dir data/raw/email_modern/own --label own`, write the ADR 0007 addendum, and if FPR is bad offer options (rule tweaks, modern-ham email v2, card wording) for the user to choose. The result card already carries MODEL_NOTE about the old training ham.
+- 2 docs commits on local main are still unpushed (user said not yet).
+
 ## Recent decisions
 - Band wording fixed in ADR 0002. Band policy in ADR 0005: `t_low` is the lowest threshold with OOF FPR <= 10% (`target_fpr_low`), capped at `t_high`.
 - lr_char alone decides the band (`manifest.primary`). rf_hand is loadable and evaluated but unused in the app.
