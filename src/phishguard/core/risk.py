@@ -6,6 +6,7 @@ The wording lives only here. It never says "Safe" and never shows a score as a p
 from collections.abc import Iterable
 from dataclasses import dataclass
 
+from phishguard.core.email.bulk import BulkInfo
 from phishguard.core.url.rules import RuleHit
 
 HIGH = "high"
@@ -75,16 +76,61 @@ def higher(*bands: str) -> str:
     return max(bands, key=_RANK.__getitem__)
 
 
-def combine_email(text_band: str, link_bands: Iterable[str], hits: Iterable[RuleHit]) -> str:
+# Rules strong enough to keep a warning on bulk mail (ADR 0008).
+STRONG_RULES = {"auth_fail", "display_name_mismatch", "anchor_href_mismatch"}
+
+BULK_ADVICE = (
+    "This looks like bulk or marketing mail, which the text model was not trained on, so it "
+    "cannot be rated. Check the sender and the links yourself before acting on it."
+)
+
+
+@dataclass(frozen=True)
+class EmailDecision:
+    band: str
+    bulk_gated: bool  # the text model and Suspicious links were set aside because of bulk mail
+
+
+def email_decision(
+    text_band: str,
+    link_bands: Iterable[str],
+    hits: Iterable[RuleHit],
+    bulk: BulkInfo | None = None,
+    headers_available: bool = True,
+    hidden_links: bool = False,
+) -> EmailDecision:
     """Email band: the highest of the text band and every link band, then rules raise it.
 
     Rules never lower a band. A high-severity rule lifts Low or Can't assess to Suspicious.
+    ADR 0008 adds two limits where the text model is out of its depth. Bulk mail with no strong
+    rule gets Can't assess instead of a model-only High or Suspicious (a High link still counts),
+    and Low then needs an authenticated bulk sender. Pasted fields have no headers, so a
+    text-only High is capped at Suspicious. `link_bands` leaves out link wrappers; `hidden_links`
+    says one was present, which only matters outside bulk mail (it hides the destination).
     """
     hits = list(hits)
-    band = combine(higher(text_band, *link_bands), hits)
+    links = list(link_bands)
+    strong = any(h.rule_id in STRONG_RULES for h in hits)
+    gated = bool(bulk and bulk.is_bulk and not strong)
+    if gated:
+        text_band = CANT_ASSESS if text_band in (HIGH, SUSPICIOUS) else text_band
+        links = [CANT_ASSESS if b == SUSPICIOUS else b for b in links]
+        base = higher(text_band, *links)
+        if base == LOW and not bulk.authenticated:
+            base = CANT_ASSESS
+        gated = base == CANT_ASSESS
+    else:
+        if not headers_available and text_band == HIGH and not strong:
+            text_band = SUSPICIOUS
+        base = higher(text_band, *links, *([CANT_ASSESS] if hidden_links else []))
+    band = combine(base, hits)
     if any(h.severity == "high" for h in hits):
         band = higher(band, SUSPICIOUS)
-    return band
+    return EmailDecision(band, gated and band == CANT_ASSESS)
+
+
+def combine_email(*args, **kwargs) -> str:
+    return email_decision(*args, **kwargs).band
 
 
 def assess(score: float, t_high: float, t_low: float, hits: Iterable[RuleHit]) -> Risk:

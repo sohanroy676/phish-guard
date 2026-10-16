@@ -166,3 +166,31 @@ def test_database_holds_no_raw_email_text(email_client, email_settings):
     for leak in ("zebra", "very-secret-host", "private/path", "alice", "token=abc"):
         assert leak not in blob
     assert "senderdomain[.]example" in blob
+
+
+def test_bulk_mail_text_warning_becomes_cant_assess_with_its_own_advice(email_client):
+    plain = raw(email_client, RAW.format(extra="", body=PHISH)).json()
+    bulk = raw(
+        email_client,
+        RAW.format(extra="List-Unsubscribe: <https://bank.example/u>", body=PHISH),
+    ).json()
+    assert plain["band"] in ("high", "suspicious")
+    assert bulk["band"] == "cant_assess"
+    assert "bulk or marketing mail" in bulk["advice"] and "safe" not in bulk["advice"].lower()
+    assert bulk["bulk_mail"] == {"detected": True, "authenticated": False}
+    assert bulk["model_reasons"]  # the n-grams are still shown
+
+
+def test_bulk_header_does_not_hide_a_strong_rule(email_client):
+    src = RAW.format(
+        extra="List-Unsubscribe: <https://bank.example/u>\nAuthentication-Results: mx; spf=fail",
+        body=PHISH,
+    )
+    assert raw(email_client, src).json()["band"] in ("high", "suspicious")
+
+
+def test_pasted_fields_can_not_claim_bulk_and_high_is_capped(email_client):
+    body = "List-Unsubscribe: <https://x.example>\n" + PHISH
+    data = fields(email_client, "Urgent", "x@evil.example", body).json()
+    assert data["bulk_mail"]["detected"] is False
+    assert data["band"] in ("suspicious", "cant_assess")

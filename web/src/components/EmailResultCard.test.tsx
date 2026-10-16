@@ -15,6 +15,7 @@ const base: EmailResult = {
   truncated: false,
   header_checks: { available: true, message: "Header checks ran.", warnings: [] },
   model_note: "Weak signal for modern mail.",
+  bulk_mail: { detected: false, authenticated: false },
 };
 
 // True when the note comes before the "Header checks" section in the page.
@@ -35,5 +36,33 @@ describe("EmailResultCard model note", () => {
     render(<EmailResultCard result={{ ...base, band }} />);
     expect(noteFirst()).toBe(false);
     expect(screen.getAllByText(base.model_note)).toHaveLength(1);
+  });
+});
+
+describe("EmailResultCard bulk mail", () => {
+  it("says nothing about bulk mail when none was detected", () => {
+    render(<EmailResultCard result={base} />);
+    expect(screen.queryByText(/Bulk mail markers/)).toBeNull();
+  });
+
+  it("explains bulk markers and never calls authenticated mail safe", () => {
+    render(
+      <EmailResultCard result={{ ...base, bulk_mail: { detected: true, authenticated: true } }} />,
+    );
+    const text = screen.getByText(/Bulk mail markers found/).textContent ?? "";
+    expect(text).toContain("does not prove the mail is safe");
+  });
+
+  it("marks a tracker link as not counted", () => {
+    const link = {
+      display_host: "click[.]list-manage[.]com",
+      band: "cant_assess" as const,
+      headline: "Can't assess",
+      lookalike: false,
+      discounted: true,
+      rule_warnings: [],
+    };
+    render(<EmailResultCard result={{ ...base, links: [link] }} />);
+    expect(screen.getByText(/real destination is hidden, so it is not counted/)).toBeTruthy();
   });
 });

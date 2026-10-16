@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from phishguard.app import auth, security
 from phishguard.app.models_db import Analysis, SessionRow
+from phishguard.core.email.bulk import bulk_info, is_link_wrapper
 from phishguard.core.email.features import anchor_mismatches
 from phishguard.core.email.parse import (
     EmailTooLarge,
@@ -21,11 +22,13 @@ from phishguard.core.explain import EMAIL_REASON, lr_reasons
 from phishguard.core.risk import (
     ADVICE,
     ADVISORY_FOOTER,
+    BULK_ADVICE,
+    CANT_ASSESS,
     HEADLINES,
     HIGH,
     SUSPICIOUS,
     assess,
-    combine_email,
+    email_decision,
     model_band,
 )
 from phishguard.core.url.normalize import UnsupportedURL, normalize_url
@@ -69,13 +72,19 @@ def _score_links(parsed: ParsedEmail, url_scorer) -> list[dict]:
             url = normalize_url(link.href)
         except UnsupportedURL:
             continue  # mailto:, javascript: and the like are not web links
-        hits = run_url_rules(url)
-        risk = assess(url_scorer.score(url), url_scorer.t_high, url_scorer.t_low, hits)
+        wrapper = is_link_wrapper(url)
+        if wrapper:
+            # The destination is hidden, so the link cannot be rated and is not counted (ADR 0008).
+            hits, band = [], CANT_ASSESS
+        else:
+            hits = run_url_rules(url)
+            band = assess(url_scorer.score(url), url_scorer.t_high, url_scorer.t_low, hits).band
         results.append(
             {
                 "display_host": security.defang_host(url),
-                "band": risk.band,
-                "headline": risk.headline,
+                "band": band,
+                "headline": HEADLINES[band],
+                "discounted": wrapper,
                 "lookalike": link.href in mismatched,
                 "rule_warnings": [asdict(h) for h in hits],
             }
@@ -93,7 +102,16 @@ def _analyze(parsed: ParsedEmail, request: Request, row: SessionRow, db: Session
 
     hits = run_email_rules(parsed)
     text_band = model_band(scorer.score(parsed), scorer.t_high, scorer.t_low)
-    band = combine_email(text_band, [link["band"] for link in links], hits)
+    bulk = bulk_info(parsed)
+    decision = email_decision(
+        text_band,
+        [link["band"] for link in links if not link["discounted"]],
+        hits,
+        bulk,
+        headers_available=parsed.has_raw_headers,
+        hidden_links=any(link["discounted"] for link in links),
+    )
+    band = decision.band
     # Model reasons explain the text model, so they show only when it raised a warning itself.
     reasons = (
         lr_reasons(scorer.model, scorer.text(parsed), template=EMAIL_REASON)
@@ -122,7 +140,8 @@ def _analyze(parsed: ParsedEmail, request: Request, row: SessionRow, db: Session
     return {
         "band": band,
         "headline": HEADLINES[band],
-        "advice": ADVICE[band],
+        "advice": BULK_ADVICE if decision.bulk_gated else ADVICE[band],
+        "bulk_mail": {"detected": bulk.is_bulk, "authenticated": bulk.authenticated},
         "footer": ADVISORY_FOOTER,
         "sender": sender,
         "model_reasons": reasons,

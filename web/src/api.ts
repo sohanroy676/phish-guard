@@ -21,6 +21,7 @@ export interface LinkResult {
   band: Band;
   headline: string;
   lookalike: boolean;
+  discounted: boolean;
   rule_warnings: RuleWarning[];
 }
 
@@ -37,6 +38,7 @@ export interface EmailResult {
   truncated: boolean;
   header_checks: { available: boolean; message: string; warnings: RuleWarning[] };
   model_note: string;
+  bulk_mail: { detected: boolean; authenticated: boolean };
 }
 
 export type Kind = "url" | "email";

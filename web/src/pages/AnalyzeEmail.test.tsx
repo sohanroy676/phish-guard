@@ -17,6 +17,7 @@ const result = {
       band: "high",
       headline: "Likely phishing",
       lookalike: true,
+      discounted: false,
       rule_warnings: [],
     },
   ],
@@ -28,6 +29,7 @@ const result = {
     warnings: [],
   },
   model_note: "The email model was trained on older legitimate mail.",
+  bulk_mail: { detected: false, authenticated: false },
 };
 
 function mockFetch() {
