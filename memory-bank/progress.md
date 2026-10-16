@@ -33,3 +33,5 @@
 - auth_fail narrowed after investigating the 9 Gmail hits (none were real failures); 373 fast tests passing, lint clean; on `fix/auth-fail-investigation`, not merged — 2026-10-16
 
 - Email bulk-mail gate (ADR 0008): bulk detection, link-wrapper discount, band gate, card wording; 395 Python (3 xfail) and 28 frontend tests passing, lint clean; on `feature/email-bulk-gate`, not merged - 2026-10-16
+
+- Gate recall tool `measure_phish.py` built and merged; measurement and ADR 0008 addendum waiting on the user's manual phishing_pot download; email v2 plan not written - 2026-10-16
