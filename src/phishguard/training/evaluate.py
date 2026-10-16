@@ -1,4 +1,4 @@
-"""Locked test evaluation -> reports/results/url_locked.json. The locked test is used once."""
+"""Locked (and temporal) test evaluation -> reports/results/<kind>_<set>.json. Used once."""
 
 import argparse
 from pathlib import Path
@@ -9,24 +9,13 @@ import pandas as pd
 from sklearn.metrics import average_precision_score, roc_auc_score
 
 from phishguard.core.registry import load_manifest, load_model
-from phishguard.core.url.features import FEATURE_NAMES
-from phishguard.core.url.normalize import normalize_url
-from phishguard.core.url.rules import run_rules
 from phishguard.training.common import load_config, resolve, write_json
+from phishguard.training.kinds import KINDS, Kind
 from phishguard.training.thresholds import rates_at
-from phishguard.training.train import build_inputs
 
 # Heuristic baseline: rule hits only. Any high-severity hit flags (score >= 10),
 # any hit at all is the looser setting (score >= 1).
 BASELINE_T_HIGH, BASELINE_T_LOW = 10.0, 1.0
-
-
-def baseline_scores(urls: pd.Series) -> np.ndarray:
-    scores = []
-    for raw in urls:
-        hits = run_rules(normalize_url(raw))
-        scores.append(10 * sum(h.severity == "high" for h in hits) + len(hits))
-    return np.array(scores, dtype=float)
 
 
 def summarise(y: np.ndarray, scores: np.ndarray, t_high: float, t_low: float) -> dict[str, Any]:
@@ -51,35 +40,34 @@ def summarise(y: np.ndarray, scores: np.ndarray, t_high: float, t_low: float) ->
     }
 
 
-def run(config_path: Path | None = None, force: bool = False) -> dict[str, Any]:
-    cfg = load_config(config_path) if config_path else load_config()
-    # v1 keeps its original file name; later versions get their own locked result file.
-    name = "url_locked.json" if cfg["version"] == "v1" else f"url_locked_{cfg['version']}.json"
-    out_path = resolve(cfg["reports_dir"]) / "results" / name
-    if out_path.exists() and not force:
-        raise FileExistsError(
-            f"{out_path} exists. The locked test is used once; pass --force to overwrite."
-        )
-    test_path = resolve(cfg["processed_dir"]) / "url_test.csv"
+def _result_path(cfg: dict[str, Any], kind: str, set_name: str) -> Path:
+    # URL v1 keeps its original file name; every other version gets its own result file.
+    suffix = "" if kind == "url" and cfg["version"] == "v1" else f"_{cfg['version']}"
+    return resolve(cfg["reports_dir"]) / "results" / f"{kind}_{set_name}{suffix}.json"
+
+
+def _evaluate_set(
+    spec: Kind, cfg: dict[str, Any], set_name: str, csv_name: str, manifest: dict[str, Any]
+) -> dict[str, Any]:
+    test_path = resolve(cfg["processed_dir"]) / csv_name
     if not test_path.is_file():
         raise FileNotFoundError(f"{test_path} not found. Run prepare first.")
     test = pd.read_csv(test_path)
     y = test["y"].to_numpy()
     models_dir = resolve(cfg["models_dir"])
-    manifest = load_manifest("url", cfg["version"], models_dir)
-    inputs = build_inputs(test["url"], list(range(len(FEATURE_NAMES))))
+    inputs = spec.build_inputs(test, list(range(len(spec.feature_names))))
 
     results: dict[str, Any] = {}
     for name, entry in manifest["models"].items():
-        model = load_model("url", cfg["version"], name, models_dir)
+        model = load_model(spec.name, cfg["version"], name, models_dir)
         data = inputs[entry["input"]]
         if entry["input"] == "features":
-            data = data[:, [FEATURE_NAMES.index(n) for n in entry["feature_names"]]]
+            data = data[:, [spec.feature_names.index(n) for n in entry["feature_names"]]]
         scores = model.predict_proba(data)[:, 1]
         results[name] = summarise(y, scores, entry["t_high"], entry["t_low"])
 
     results["heuristic_baseline"] = summarise(
-        y, baseline_scores(test["url"]), BASELINE_T_HIGH, BASELINE_T_LOW
+        y, spec.baseline(test), BASELINE_T_HIGH, BASELINE_T_LOW
     )
     base_pr = results["heuristic_baseline"]["pr_auc"]
     payload = {
@@ -90,19 +78,51 @@ def run(config_path: Path | None = None, force: bool = False) -> dict[str, Any]:
         "results": results,
         "beats_baseline": {name: results[name]["pr_auc"] > base_pr for name in manifest["models"]},
     }
-    write_json(out_path, payload)
+    if set_name in spec.notes:
+        payload["note"] = spec.notes[set_name]
     return payload
 
 
+def run_sets(
+    config_path: Path | None = None, force: bool = False, kind: str = "url"
+) -> dict[str, dict[str, Any]]:
+    spec = KINDS[kind]
+    cfg = load_config(config_path or spec.config)
+    paths = {name: _result_path(cfg, kind, name) for name in spec.test_sets}
+    # Check every output first, so a refused run never leaves some sets spent and others not.
+    existing = [p for p in paths.values() if p.exists()]
+    if existing and not force:
+        raise FileExistsError(
+            f"{existing[0]} exists. The locked test is used once; pass --force to overwrite."
+        )
+    manifest = load_manifest(kind, cfg["version"], resolve(cfg["models_dir"]))
+    payloads = {
+        name: _evaluate_set(spec, cfg, name, csv_name, manifest)
+        for name, csv_name in spec.test_sets.items()
+    }
+    for name, payload in payloads.items():
+        write_json(paths[name], payload)
+    return payloads
+
+
+def run(config_path: Path | None = None, force: bool = False, kind: str = "url") -> dict[str, Any]:
+    """Evaluate every test set of the kind and return the locked-test payload."""
+    return run_sets(config_path, force, kind)["locked"]
+
+
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Evaluate on the locked URL test set.")
-    parser.add_argument("kind", choices=["url"])
+    parser = argparse.ArgumentParser(description="Evaluate on the locked test sets.")
+    parser.add_argument("kind", choices=list(KINDS))
     parser.add_argument("--force", action="store_true", help="overwrite existing results")
     args = parser.parse_args()
-    payload = run(force=args.force)
-    for name, res in payload["results"].items():
-        print(name, "pr_auc", round(res["pr_auc"], 4), "fpr@high", round(res["fpr_at_t_high"], 4))
-    print("beats_baseline:", payload["beats_baseline"])
+    for set_name, payload in run_sets(force=args.force, kind=args.kind).items():
+        print(f"[{set_name}] n={payload['n_test']} phishing={payload['n_phishing']}")
+        for name, res in payload["results"].items():
+            print(
+                f"  {name} pr_auc {res['pr_auc']:.4f} fpr@high {res['fpr_at_t_high']:.4f} "
+                f"recall@high {res['recall_at_t_high']:.4f}"
+            )
+        print("  beats_baseline:", payload["beats_baseline"])
 
 
 if __name__ == "__main__":

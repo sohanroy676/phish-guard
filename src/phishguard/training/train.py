@@ -1,4 +1,4 @@
-"""Grouped CV, threshold selection, final fit -> models/url/<version>/."""
+"""Grouped CV, threshold selection, final fit -> models/<kind>/<version>/."""
 
 import argparse
 import itertools
@@ -15,26 +15,10 @@ from sklearn.metrics import average_precision_score
 from sklearn.model_selection import StratifiedGroupKFold
 
 from phishguard.core.registry import sha256_file
-from phishguard.core.url.features import (
-    FEATURE_NAMES,
-    domain_text,
-    feature_matrix,
-    host_text,
-    url_text,
-)
 from phishguard.training.common import load_config, resolve, write_json
+from phishguard.training.kinds import KINDS
 from phishguard.training.models import FACTORIES, MODEL_INPUTS, selected_features
 from phishguard.training.thresholds import pick_t_high, pick_t_low, rates_at
-
-
-def build_inputs(urls: pd.Series, cols: list[int]) -> dict[str, Any]:
-    """Model inputs for a list of raw URLs, built only with core feature code."""
-    return {
-        "url_text": np.array([url_text(u) for u in urls], dtype=object),
-        "host_text": np.array([host_text(u) for u in urls], dtype=object),
-        "domain_text": np.array([domain_text(u) for u in urls], dtype=object),
-        "features": feature_matrix(urls)[:, cols],
-    }
 
 
 def _grid(grid: dict[str, list]) -> list[dict[str, Any]]:
@@ -81,33 +65,34 @@ def train_model(name, cfg, inputs, y, folds) -> tuple[Any, dict[str, Any]]:
     return final, entry
 
 
-def run(config_path: Path | None = None) -> dict[str, Any]:
-    cfg = load_config(config_path) if config_path else load_config()
-    dev_path = resolve(cfg["processed_dir"]) / "url_dev.csv"
+def run(config_path: Path | None = None, kind: str = "url") -> dict[str, Any]:
+    spec = KINDS[kind]
+    cfg = load_config(config_path or spec.config)
+    dev_path = resolve(cfg["processed_dir"]) / f"{kind}_dev.csv"
     if not dev_path.is_file():
         raise FileNotFoundError(f"{dev_path} not found. Run prepare first.")
     dev = pd.read_csv(dev_path)
     y = dev["y"].to_numpy()
-    cols = selected_features(cfg["exclude_features"])
-    inputs = build_inputs(dev["url"], cols)
+    cols = selected_features(cfg["exclude_features"], spec.feature_names)
+    inputs = spec.build_inputs(dev, cols)
     splitter = StratifiedGroupKFold(n_splits=cfg["n_folds"], shuffle=True, random_state=cfg["seed"])
     folds = list(splitter.split(dev, y, groups=dev["group"]))
 
-    out_dir = resolve(cfg["models_dir"]) / "url" / cfg["version"]
+    out_dir = resolve(cfg["models_dir"]) / kind / cfg["version"]
     out_dir.mkdir(parents=True, exist_ok=True)
     models: dict[str, Any] = {}
-    for name in FACTORIES:
+    for name in cfg["grids"]:
         final, entry = train_model(name, cfg, inputs, y, folds)
         path = out_dir / f"{name}.joblib"
         joblib.dump(final, path, compress=3)
         entry["file"] = path.name
         entry["sha256"] = sha256_file(path)
         if entry["input"] == "features":
-            entry["feature_names"] = [FEATURE_NAMES[i] for i in cols]
+            entry["feature_names"] = [spec.feature_names[i] for i in cols]
         models[name] = entry
 
     manifest = {
-        "kind": "url",
+        "kind": kind,
         "version": cfg["version"],
         "created_utc": datetime.now(UTC).isoformat(timespec="seconds"),
         "sklearn_version": sklearn.__version__,
@@ -126,10 +111,10 @@ def run(config_path: Path | None = None) -> dict[str, Any]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Train the URL models.")
-    parser.add_argument("kind", choices=["url"])
-    parser.parse_args()
-    manifest = run()
+    parser = argparse.ArgumentParser(description="Train the url or email models.")
+    parser.add_argument("kind", choices=list(KINDS))
+    args = parser.parse_args()
+    manifest = run(kind=args.kind)
     for name, entry in manifest["models"].items():
         print(name, entry["dev_oof"], "t_high", entry["t_high"], "t_low", entry["t_low"])
 
