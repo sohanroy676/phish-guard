@@ -60,6 +60,10 @@ jobs:
       - name: Install dependencies
         run: ${{ env.INSTALL_CMD }}
 
+      # The lock file pins dependencies only; tests import the phishguard package itself.
+      - name: Install project
+        run: pip install -e . --no-deps
+
       - name: Install web dependencies
         run: npm ci
         working-directory: web
