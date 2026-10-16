@@ -29,6 +29,9 @@ dev = ["pytest", "pytest-socket", "httpx", "ruff", "pip-audit"]
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+"phishguard.core.lists" = ["*.txt"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--allow-hosts=127.0.0.1,::1"

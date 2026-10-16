@@ -1,0 +1,16 @@
+# Free hosting / site-builder registrable domains
+weebly.com
+wixsite.com
+blogspot.com
+000webhostapp.com
+herokuapp.com
+netlify.app
+vercel.app
+pages.dev
+github.io
+glitch.me
+firebaseapp.com
+web.app
+godaddysites.com
+sites.google.com
+webflow.io
