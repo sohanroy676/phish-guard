@@ -4,9 +4,13 @@ import ResultCard from "./ResultCard";
 // Everything below is rendered as React text nodes. Email content is never parsed as HTML.
 export default function EmailResultCard({ result }: { result: EmailResult }) {
   const card = { ...result, display_host: `Sender: ${result.sender}` };
+  // A warning is where the old-training-data caveat matters most, so it goes above the details.
+  const warned = result.band === "high" || result.band === "suspicious";
+  const note = <p className="note">{result.model_note}</p>;
   return (
     <div className="email-result">
       <ResultCard result={card} />
+      {warned && note}
 
       <section aria-label="Header checks">
         <h3>Header checks</h3>
@@ -48,7 +52,7 @@ export default function EmailResultCard({ result }: { result: EmailResult }) {
         {result.truncated && <p>This email was very long, so only part of it was checked.</p>}
       </section>
 
-      <p className="note">{result.model_note}</p>
+      {!warned && note}
     </div>
   );
 }

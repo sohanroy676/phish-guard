@@ -69,3 +69,5 @@ All 123 are legitimate, so these are false-positive rates, against about 1% on t
 - **Limits:** one person's mailbox, 123 messages, not random, English, mostly one provider's categories. The size of the effect is clear but the exact rate is not. Header results depend on how Gmail wrote them.
 
 Conclusion: the app's High and Suspicious bands carry almost no information on modern commercial mail, and this contradicts the reported 1% FPR for that kind of mail. The existing `MODEL_NOTE` on the result card says the model is weak for newsletters, receipts and notifications; the measurement shows that is understated. No fix has been chosen; options were put to the user.
+
+**Response, step 1 (wording only):** the user chose to change wording first. The band keys, band wording (ADR 0002) and thresholds are unchanged. `MODEL_NOTE` now states the 1999-2003 training data and the measurement above, and the result card shows it above the details when the band is High or Suspicious (below them otherwise). The email model, thresholds and band logic are the follow-up (email v2 with a modern-ham source, or a band-policy change), still the user's decision.
