@@ -1,6 +1,0 @@
-pyproject.toml
-src/phishguard.egg-info/PKG-INFO
-src/phishguard.egg-info/SOURCES.txt
-src/phishguard.egg-info/dependency_links.txt
-src/phishguard.egg-info/requires.txt
-src/phishguard.egg-info/top_level.txt
