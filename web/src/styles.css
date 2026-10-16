@@ -58,3 +58,47 @@ form {
   font-size: 0.85rem;
   color: #555;
 }
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.history {
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+.history th,
+.history td {
+  text-align: left;
+  padding: 0.3rem 0.8rem;
+  border-bottom: 1px solid #ddd;
+}
+.host {
+  font-family: ui-monospace, monospace;
+}
+.cards {
+  display: flex;
+  gap: 1rem;
+}
+.card {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 0.8rem 1.2rem;
+}
+.card strong {
+  font-size: 1.5rem;
+  display: block;
+}
+.bands {
+  list-style: none;
+  padding: 0;
+}
+.band-text.band-high {
+  color: #b00020;
+}
+.band-text.band-suspicious {
+  color: #b26a00;
+}
+.band-text.band-low {
+  color: #2e6b34;
+}

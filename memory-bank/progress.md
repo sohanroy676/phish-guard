@@ -14,10 +14,12 @@
 
 - v0.6.0 email analysis in the app: `core/email/scoring.py`, `risk.higher/combine_email`, email reason template, `POST /api/analyze/email` (fields or raw) and `/upload`, header panel, per-link results, React `/analyze/email` with three tabs; 317 Python tests (3 xfail) and 15 frontend tests passing; live smoke test OK with real models (v2 URL, v1 email) - on `feature/email-app`, not merged - 2026-10-16
 
+- v0.7.0 history, SSE dashboard, retention purge: event bus, `/api/events`, `/api/history` (list, filters, Delete all), `/api/dashboard/summary`, startup and daily purge, React History, Dashboard (Recharts) and Privacy pages; 344 Python tests (3 xfail) and 21 frontend tests passing; live smoke test OK (own-user SSE event only, second user empty, Delete all, RETENTION_DAYS=0 purge on restart) - on `feature/history-dashboard`, not merged - 2026-10-16
+
 ## In progress
 
-- `feature/email-app` awaiting review and merge (not pushed, not tagged); v0.7.0 not started
+- `feature/history-dashboard` awaiting review and merge (not pushed, not tagged); v0.8.0 not started
 
 ## Not done in v0.4.0 (by design)
 
-- SSE events, history, dashboard, retention purge (v0.7.0); email (v0.5.0, v0.6.0)
+- Nothing outstanding from v0.4.0; its deferred items shipped in v0.5.0-v0.7.0

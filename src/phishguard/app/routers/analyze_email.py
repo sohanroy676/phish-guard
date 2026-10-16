@@ -116,6 +116,7 @@ def _analyze(parsed: ParsedEmail, request: Request, row: SessionRow, db: Session
         )
     )
     db.commit()
+    request.app.state.events.publish(row.user_id)
     return {
         "band": band,
         "headline": HEADLINES[band],

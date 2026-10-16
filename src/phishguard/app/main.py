@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -7,8 +8,10 @@ from sqlalchemy.orm import sessionmaker
 
 from phishguard.app.config import Settings, check_secrets, get_settings
 from phishguard.app.db import make_engine
+from phishguard.app.events import EventBus
 from phishguard.app.models_db import Base
-from phishguard.app.routers import analyze, analyze_email, auth, meta
+from phishguard.app.retention import purge_daily, purge_old
+from phishguard.app.routers import analyze, analyze_email, auth, dashboard, events, history, meta
 from phishguard.core.email.scoring import load_email_scorer
 from phishguard.core.url.scoring import load_url_scorer
 
@@ -29,7 +32,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             app.state.email_scorer = load_email_scorer(
                 settings.model_version_email, settings.models_dir
             )
+        purge_old(app.state.sessionmaker, settings.retention_days)
+        purger = asyncio.create_task(purge_daily(app.state.sessionmaker, settings.retention_days))
         yield
+        purger.cancel()
 
     app = FastAPI(title="PhishGuard", lifespan=lifespan)
     app.state.settings = settings
@@ -37,10 +43,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.sessionmaker = sessionmaker(app.state.engine, expire_on_commit=False)
     app.state.url_scorer = None
     app.state.email_scorer = None
+    # Events live in memory, so the app must run as a single worker.
+    app.state.events = EventBus()
     app.include_router(meta.router)
     app.include_router(auth.router)
     app.include_router(analyze.router)
     app.include_router(analyze_email.router)
+    app.include_router(events.router)
+    app.include_router(history.router)
+    app.include_router(dashboard.router)
     if WEB_DIST.is_dir():
         app.mount("/", StaticFiles(directory=WEB_DIST, html=True), name="web")
     return app

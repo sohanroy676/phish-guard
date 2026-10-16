@@ -1,6 +1,7 @@
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from phishguard.core.registry import MODELS_DIR
@@ -15,7 +16,7 @@ class Settings(BaseSettings):
     secret_key: str = ""
     hmac_pepper: str = ""
     database_url: str = "sqlite:///./phishguard.db"
-    retention_days: int = 30
+    retention_days: int = Field(30, ge=0)
     model_version_url: str = ""
     model_version_email: str = ""
     models_dir: Path = MODELS_DIR

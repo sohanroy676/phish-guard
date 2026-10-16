@@ -4,8 +4,11 @@ import { useAuth } from "./auth";
 import NavBar from "./components/NavBar";
 import Analyze from "./pages/Analyze";
 import AnalyzeEmail from "./pages/AnalyzeEmail";
+import Dashboard from "./pages/Dashboard";
+import History from "./pages/History";
 import Login from "./pages/Login";
 import Placeholder from "./pages/Placeholder";
+import Privacy from "./pages/Privacy";
 import Register from "./pages/Register";
 
 function RequireLogin({ children }: { children: ReactNode }) {
@@ -40,9 +43,23 @@ export default function App() {
           />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/history" element={<Placeholder title="History" />} />
-          <Route path="/dashboard" element={<Placeholder title="Dashboard" />} />
-          <Route path="/privacy" element={<Placeholder title="Privacy" />} />
+          <Route
+            path="/history"
+            element={
+              <RequireLogin>
+                <History />
+              </RequireLogin>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <RequireLogin>
+                <Dashboard />
+              </RequireLogin>
+            }
+          />
+          <Route path="/privacy" element={<Privacy />} />
           <Route path="*" element={<Placeholder title="Not found" />} />
         </Routes>
       </main>
