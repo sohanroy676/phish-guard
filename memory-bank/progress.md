@@ -20,7 +20,7 @@
 
 ## In progress
 
-- Nothing in progress. v1.0.0 merged (8b9265a), pushed, CI green, tagged; the user still has to do the manual Wi-Fi-off pass
+- Nothing in progress. v1.0.0 merged (8b9265a), pushed, CI green, tagged; the user's manual checks and Wi-Fi-off pass are done and passed (2026-10-16)
 
 ## Not done in v0.4.0 (by design)
 
