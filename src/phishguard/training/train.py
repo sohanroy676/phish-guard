@@ -59,9 +59,9 @@ def train_model(name, cfg, inputs, y, folds) -> tuple[Any, dict[str, Any]]:
             best = (pr_auc, params, oof)
     pr_auc, params, oof = best
     t_high = pick_t_high(y, oof, cfg["target_fpr"])
-    t_low = pick_t_low(y, oof, cfg["target_recall_low"], t_high)
+    t_low = pick_t_low(y, oof, cfg["target_fpr_low"], t_high)
     fpr_high, recall_high = rates_at(y, oof, t_high)
-    _, recall_low = rates_at(y, oof, t_low)
+    fpr_low, recall_low = rates_at(y, oof, t_low)
     entry = {
         "input": MODEL_INPUTS[name],
         "params": params,
@@ -71,6 +71,7 @@ def train_model(name, cfg, inputs, y, folds) -> tuple[Any, dict[str, Any]]:
             "pr_auc": pr_auc,
             "fpr_at_t_high": fpr_high,
             "recall_at_t_high": recall_high,
+            "fpr_at_t_low": fpr_low,
             "recall_at_t_low": recall_low,
         },
     }
@@ -112,7 +113,7 @@ def run(config_path: Path | None = None) -> dict[str, Any]:
         "seed": cfg["seed"],
         "data_sha256": sha256_file(dev_path),
         "target_fpr": cfg["target_fpr"],
-        "target_recall_low": cfg["target_recall_low"],
+        "target_fpr_low": cfg["target_fpr_low"],
         "exclude_features": cfg["exclude_features"],
         "dev_rows": len(dev),
         "primary": max(models, key=lambda m: models[m]["dev_oof"]["pr_auc"]),

@@ -39,11 +39,9 @@ def pick_t_high(y: np.ndarray, scores: np.ndarray, target_fpr: float) -> float:
     return float((boundary + higher.min()) / 2)
 
 
-def pick_t_low(y: np.ndarray, scores: np.ndarray, target_recall: float, t_high: float) -> float:
-    """Highest threshold that still catches `target_recall` of phishing, capped at t_high."""
-    _, pos = _split(y, scores)
-    if len(pos) == 0:
-        raise ValueError("Need phishing (y=1) samples to choose t_low.")
-    needed = max(1, math.ceil(target_recall * len(pos) - 1e-9))
-    t_low = float(np.sort(pos)[::-1][needed - 1])
-    return min(t_low, t_high)
+def pick_t_low(y: np.ndarray, scores: np.ndarray, target_fpr_low: float, t_high: float) -> float:
+    """Lowest threshold whose FPR is <= target_fpr_low, capped at t_high.
+
+    This bounds how many legitimate URLs land in the Suspicious band (ADR 0005).
+    """
+    return min(pick_t_high(y, scores, target_fpr_low), t_high)

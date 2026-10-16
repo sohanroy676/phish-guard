@@ -1,5 +1,5 @@
 {
-  "created_utc": "2026-10-16T07:38:24+00:00",
+  "created_utc": "2026-10-16T08:24:52+00:00",
   "data_sha256": "ba41bee8b6512cc6e1676b83c8a5a8faf38d254f696978db6701cba647ebc0a5",
   "dev_rows": 188046,
   "exclude_features": [
@@ -22,9 +22,10 @@
     "lr_char": {
       "dev_oof": {
         "fpr_at_t_high": 0.009995641974278376,
+        "fpr_at_t_low": 0.09999350932339332,
         "pr_auc": 0.9428862978688902,
         "recall_at_t_high": 0.7601591042282323,
-        "recall_at_t_low": 0.9500118455342336
+        "recall_at_t_low": 0.8476664297559819
       },
       "file": "lr_char.joblib",
       "input": "host_text",
@@ -38,14 +39,15 @@
       },
       "sha256": "b23c2222f184cbe95d70688a53d273bc71054ad4e0998fc76a878ee835816f88",
       "t_high": 0.6191402152316362,
-      "t_low": 0.15268253358392778
+      "t_low": 0.3523174455594866
     },
     "rf_hand": {
       "dev_oof": {
         "fpr_at_t_high": 0.009995641974278376,
+        "fpr_at_t_low": 0.09999350932339332,
         "pr_auc": 0.8908422361542031,
         "recall_at_t_high": 0.6221898028653724,
-        "recall_at_t_low": 0.9500118455342336
+        "recall_at_t_low": 0.7539869574433596
       },
       "feature_names": [
         "host_len",
@@ -74,7 +76,7 @@
       },
       "sha256": "070451587b0ad35d781f6aa899ae305adcadaaaa0d33da04fc1a07c21fca97a4",
       "t_high": 0.784715496613045,
-      "t_low": 0.18785534814639837
+      "t_low": 0.344534537635769
     }
   },
   "primary": "lr_char",
@@ -82,6 +84,6 @@
   "seed": 42,
   "sklearn_version": "1.9.1",
   "target_fpr": 0.01,
-  "target_recall_low": 0.95,
+  "target_fpr_low": 0.1,
   "version": "v1"
 }

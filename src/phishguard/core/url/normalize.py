@@ -67,12 +67,12 @@ def normalize_url(raw: str) -> NormalizedURL:
     try:
         parts = urlsplit(s)
         scheme = parts.scheme.lower()
-        if scheme not in _DEFAULT_PORTS:
-            raise UnsupportedURL("Only http/https links can be assessed.")
         host = (parts.hostname or "").rstrip(".").lower()
         port = parts.port
     except ValueError as exc:
         raise UnsupportedURL("That link could not be read.") from exc
+    if scheme not in _DEFAULT_PORTS:
+        raise UnsupportedURL("Only http/https links can be assessed.")
     if not host:
         raise UnsupportedURL("That link has no host name.")
     try:

@@ -8,7 +8,7 @@ from phishguard.app.db import db_is_ok, make_engine
 def test_health_reports_ok(client):
     response = client.get("/api/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "db": "ok", "models": {}}
+    assert response.json() == {"status": "ok", "db": "ok", "models": {"url": "v1"}}
 
 
 def test_health_rejects_post(client):
