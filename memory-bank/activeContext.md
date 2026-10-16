@@ -1,7 +1,7 @@
 # Active Context
 
 ## Current focus
-v0.7.0 (history, SSE dashboard, retention purge) is merged to main (57a5943), tagged v0.7.0 and pushed; CI green. There is no v0.8.0: the roadmap goes v0.7.0 -> v1.0.0, so v1.0.0 hardening is done on `feature/v1-hardening` (7 commits, not pushed, not merged, not tagged) and awaits review. The final `make evaluate` of v1.0.0 was skipped on purpose (locked results already exist; never re-run or --force).
+v1.0.0 is merged to main (8b9265a), pushed, CI green, and tagged v1.0.0. v0.7.0 is tagged too. There was never a v0.8.0. v1 is feature-complete; the only v1 item left is the user's manual Wi-Fi-off pass. The v1.0.0 `make evaluate` was skipped on purpose (never re-run or --force).
 
 ## Recent decisions
 - Band wording fixed in ADR 0002. Band policy in ADR 0005: `t_low` is the lowest threshold with OOF FPR <= 10% (`target_fpr_low`), capped at `t_high`.
@@ -28,6 +28,7 @@ v0.7.0 (history, SSE dashboard, retention purge) is merged to main (57a5943), ta
 - v0.7.0 decisions: SSE events are in-memory (`app/events.py`, per-user queues, drop-oldest, payload `{type: analysis}` only; the page refetches `GET /api/dashboard/summary`), so the app must run as ONE worker. `GET /api/events` needs login only (EventSource is GET). History: `GET/DELETE /api/history` with an allow-list serializer (no `input_hmac`); Delete all removes only the caller's analyses and leaves sessions. Retention: `purge_old` deletes analyses strictly older than `RETENTION_DAYS` (exactly 30 days is kept; 0 purges everything older than now) and expired sessions, at startup and daily; `retention_days` must be >= 0. TestClient cannot read endless streams, so the SSE isolation test runs a real uvicorn on loopback (`tests/integration/test_events_live.py`). No new index on `analyses` (create_all cannot alter existing DBs).
 
 ## v1.0.0 decisions
+- CI has the committed manifests but not the git-ignored `.joblib` files, so tests needing a real model must check the `.joblib` and skip (the first v1.0.0 merge failed CI on this, fixed in 8b9265a).
 - Golden scores in `tests/golden/scores.json` (regenerate with `python tests/golden/test_scores.py` only with a model version bump). `tests/integration/test_offline.py` blocks DNS and connects. `SPAFiles` in `app/main.py` serves `index.html` for client routes (a refresh on `/history` used to 404; found by the live smoke test). Starlette passes `\` paths on Windows, so normalise before checking `api/`.
 - README documents install, train, run, test and known limits. The 2 react-router npm findings are unreachable (hardcoded navigation targets, no SSR) and recorded in README. `web/.prettierrc` has `endOfLine: auto` so `npm run lint` passes on CRLF checkouts (`core.autocrlf=true`).
 
@@ -39,4 +40,4 @@ v0.7.0 (history, SSE dashboard, retention purge) is merged to main (57a5943), ta
 - Prettier `--check .` warns on 6 root config files because of CRLF on this Windows checkout (pre-existing, `src` is clean).
 
 ## Next step
-Review `feature/v1-hardening`, then merge with `git merge -m`, and only after a successful merge tag v1.0.0 and push (ask the user first). The manual offline pass is still the user's to do: build with `npm --prefix web run build`, `make app`, turn Wi-Fi off, use every page. Open follow-ups (not v1 blockers): v3 URL model with an external legitimate-host source (ADR 0006); FPR of the email model on modern legitimate mail (ADR 0007). `.claude/settings.json` has an uncommitted local change; never stage it.
+Post-v1 candidates, none started: the user's manual offline pass; v3 URL model with an external legitimate-host source (ADR 0006, needs a manual download and licence check); measure the email model on modern legitimate mail (ADR 0007); the 2 react-router audit findings (needs a breaking upgrade). Branches `feature/email-app`, `feature/history-dashboard`, `feature/v1-hardening` and `fix/golden-skip-without-joblib` are merged and can be deleted (ask the user first). `.claude/settings.json` is committed now.
