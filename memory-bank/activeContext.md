@@ -1,15 +1,17 @@
 # Active Context
 
 ## Current focus
-v0.1.0 skeleton (branch `feature/skeleton`): layout, tooling, health endpoint, React shell.
+v0.1.0 skeleton is built on `feature/skeleton` and passes its gates. Awaiting merge to main.
 
 ## Recent decisions
-- Band wording fixed in ADR 0002 (Likely phishing / Suspicious: be careful / No strong phishing signs found / Can't assess).
-- CI aligned to Python 3.12, requirements.lock, ruff, Node 22, gitleaks on.
-- Local machine has no `make`; Python 3.12 is available via `py -3.12`.
+- Band wording fixed in ADR 0002.
+- venv made with `uv venv --python 3.12` (the py-launcher 3.12 entry is stale). `make setup` falls back to uv.
+- pytest-socket uses `--allow-hosts=127.0.0.1,::1` (not `--disable-socket`) because asyncio needs loopback sockets on Windows.
+- ESLint pinned to 9 because eslint-plugin-react does not support 10 yet.
+- `npm audit` reports 2 moderate issues in react-router (SSR hydration only, unused in this SPA). Not upgraded, since pins are frozen; revisit at v1.0.0 `make audit-deps`.
 
 ## Blockers / open questions
-- Install GNU make (or run Makefile recipes by hand) on this Windows machine.
+- GNU make is not installed on this Windows machine, so the Makefile has not been run end to end (recipes were run by hand).
 
 ## Next step
-Finish v0.1.0 exit gate, then start v0.2.0 URL core.
+Merge `feature/skeleton`, then start v0.2.0 URL core (normalize, features, rules, word lists).
