@@ -53,7 +53,9 @@ def summarise(y: np.ndarray, scores: np.ndarray, t_high: float, t_low: float) ->
 
 def run(config_path: Path | None = None, force: bool = False) -> dict[str, Any]:
     cfg = load_config(config_path) if config_path else load_config()
-    out_path = resolve(cfg["reports_dir"]) / "results" / "url_locked.json"
+    # v1 keeps its original file name; later versions get their own locked result file.
+    name = "url_locked.json" if cfg["version"] == "v1" else f"url_locked_{cfg['version']}.json"
+    out_path = resolve(cfg["reports_dir"]) / "results" / name
     if out_path.exists() and not force:
         raise FileExistsError(
             f"{out_path} exists. The locked test is used once; pass --force to overwrite."

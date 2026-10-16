@@ -9,8 +9,8 @@ from sklearn.pipeline import Pipeline
 
 from phishguard.core.url.features import FEATURE_NAMES
 
-# model name -> what the model reads: "host_text" strings or the "features" matrix
-MODEL_INPUTS = {"lr_char": "host_text", "rf_hand": "features"}
+# model name -> what the model reads: "domain_text" strings or the "features" matrix
+MODEL_INPUTS = {"lr_char": "domain_text", "rf_hand": "features"}
 
 
 def selected_features(exclude: list[str]) -> list[int]:

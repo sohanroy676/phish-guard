@@ -26,12 +26,14 @@ def prepare_frame(
     frame, unsupported = normalize_frame(raw)
     counts = {"raw_rows": len(raw), "unsupported": unsupported}
 
+    # The n-gram model sees only the registered domain (`group`, ADR 0006): one row per
+    # domain and label, so a domain with many hosts or paths does not outweigh the others.
     before = len(frame)
-    frame = frame.drop_duplicates(subset=["scheme", "text"]).reset_index(drop=True)
+    frame = frame.drop_duplicates(subset=["y", "group"]).reset_index(drop=True)
     counts["duplicates_dropped"] = before - len(frame)
 
-    # The n-gram model sees only `text`, so identical text with different labels is noise.
-    conflicting = frame.groupby("text")["y"].transform("nunique") > 1
+    # The same domain with both labels would give the model identical input with opposite labels.
+    conflicting = frame.groupby("group")["y"].transform("nunique") > 1
     counts["conflicting_dropped"] = int(conflicting.sum())
     frame = frame[~conflicting].reset_index(drop=True)
 

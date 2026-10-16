@@ -7,7 +7,7 @@ from typing import Any
 import pandas as pd
 import yaml
 
-from phishguard.core.url.features import url_text
+from phishguard.core.url.features import domain_text, url_text
 from phishguard.core.url.normalize import NormalizedURL, UnsupportedURL, normalize_url
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -31,7 +31,7 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
 
 def group_key(u: NormalizedURL) -> str:
     """Registered domain, or the host for IPs and names with no public suffix."""
-    return u.registrable if u.domain and u.suffix else u.host
+    return domain_text(u)
 
 
 def read_phiusiil(path: Path) -> pd.DataFrame:

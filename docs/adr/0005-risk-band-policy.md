@@ -25,6 +25,8 @@ ADR 0004 set `t_low` as the highest threshold keeping out-of-fold phishing recal
 - Average rf_hand and lr_char: rejected for v0.4.0, rf_hand has lower PR-AUC and ensembles are deferred past v1.
 
 ## Consequences
+Update: the subdomain part of this limitation was fixed in model v2 (ADR 0006). The text below describes v1.
+
 Known limitation, found with the real model on 2026-10-16: the host-only model over-flags real sites that PhiUSIIL does not cover. `en.wikipedia.org` scores 0.89 and `github.com` 0.99 (both High), while `www.wikipedia.org` scores 0.05. PhiUSIIL legitimate hosts are almost all `www.<site>` homepages, so subdomains and unfamiliar hosts look like phishing. The locked-test numbers cannot show this. v0.4.0 ships as trained; the fix (external legitimate hosts, or training on the registrable domain) is deferred, and the Wikipedia golden test is marked xfail until then.
 
 About 1 in 7 phishing hosts that the model sees scores below `t_low` and shows as "No strong phishing signs found". That text already says it is not a guarantee. Host-only models cannot see path-based phishing, so path and scheme rules carry that signal. A fresh external test set remains on the Later list.

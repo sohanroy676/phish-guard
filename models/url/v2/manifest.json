@@ -1,0 +1,89 @@
+{
+  "created_utc": "2026-10-16T09:13:46+00:00",
+  "data_sha256": "6a0a8b30a4f36cf2f8afea0bb673518de082ddbf5fcd5ff3891418118492addd",
+  "dev_rows": 140309,
+  "exclude_features": [
+    "is_https",
+    "url_len",
+    "path_len",
+    "query_len",
+    "digit_ratio_path",
+    "special_char_count",
+    "at_count",
+    "slash_count_path",
+    "param_count",
+    "path_entropy",
+    "keyword_count",
+    "brand_in_path",
+    "double_slash_in_path"
+  ],
+  "kind": "url",
+  "models": {
+    "lr_char": {
+      "dev_oof": {
+        "fpr_at_t_high": 0.009990814132977262,
+        "fpr_at_t_low": 0.09999337102379803,
+        "pr_auc": 0.7133780845660193,
+        "recall_at_t_high": 0.3423887992625029,
+        "recall_at_t_low": 0.5808365982945379
+      },
+      "file": "lr_char.joblib",
+      "input": "domain_text",
+      "params": {
+        "C": 1.0,
+        "max_features": 200000,
+        "ngram_range": [
+          2,
+          4
+        ]
+      },
+      "sha256": "616840ecfc4665d9a32842e5f08137e255ac371a3e8f2848fe526643edb36707",
+      "t_high": 0.8092391550047117,
+      "t_low": 0.576134570468364
+    },
+    "rf_hand": {
+      "dev_oof": {
+        "fpr_at_t_high": 0.009990814132977262,
+        "fpr_at_t_low": 0.09999337102379803,
+        "pr_auc": 0.7079597252668828,
+        "recall_at_t_high": 0.4407985710993316,
+        "recall_at_t_low": 0.577264346623646
+      },
+      "feature_names": [
+        "host_len",
+        "dot_count",
+        "hyphen_count_host",
+        "digit_count_host",
+        "digit_ratio_host",
+        "subdomain_count",
+        "host_entropy",
+        "tld_len",
+        "has_ip_host",
+        "has_userinfo",
+        "non_default_port",
+        "is_punycode",
+        "suspicious_tld",
+        "is_shortener",
+        "is_free_hosting",
+        "brand_in_subdomain",
+        "brand_in_domain_hyphenated"
+      ],
+      "file": "rf_hand.joblib",
+      "input": "features",
+      "params": {
+        "min_samples_leaf": 3,
+        "n_estimators": 200
+      },
+      "sha256": "c7cc9bf406f34bb4bee7416c28c5c966a4e8af8f095b2a6ae02d3dce02d62aac",
+      "t_high": 0.7184222832476135,
+      "t_low": 0.4112178975042475
+    }
+  },
+  "primary": "lr_char",
+  "python_version": "3.12.12",
+  "seed": 42,
+  "sklearn_version": "1.9.1",
+  "target_fpr": 0.01,
+  "target_fpr_low": 0.1,
+  "version": "v2"
+}
