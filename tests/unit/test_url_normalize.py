@@ -73,3 +73,9 @@ def test_query_kept_and_multi_part_suffix():
 def test_unknown_suffix_does_not_crash():
     u = normalize_url("http://localhost/")
     assert u.host == "localhost"
+
+
+@pytest.mark.parametrize("url", ["ftp://example.com/file", "javascript://x.com/%0aalert(1)"])
+def test_unsupported_scheme_gets_the_http_only_message(url):
+    with pytest.raises(UnsupportedURL, match="Only http/https links can be assessed"):
+        normalize_url(url)
