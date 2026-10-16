@@ -15,7 +15,12 @@ from sklearn.metrics import average_precision_score
 from sklearn.model_selection import StratifiedGroupKFold
 
 from phishguard.core.registry import sha256_file
-from phishguard.core.url.features import FEATURE_NAMES, feature_matrix, url_text
+from phishguard.core.url.features import (
+    FEATURE_NAMES,
+    feature_matrix,
+    host_text,
+    url_text,
+)
 from phishguard.training.common import load_config, resolve, write_json
 from phishguard.training.models import FACTORIES, MODEL_INPUTS, selected_features
 from phishguard.training.thresholds import pick_t_high, pick_t_low, rates_at
@@ -25,6 +30,7 @@ def build_inputs(urls: pd.Series, cols: list[int]) -> dict[str, Any]:
     """Model inputs for a list of raw URLs, built only with core feature code."""
     return {
         "url_text": np.array([url_text(u) for u in urls], dtype=object),
+        "host_text": np.array([host_text(u) for u in urls], dtype=object),
         "features": feature_matrix(urls)[:, cols],
     }
 

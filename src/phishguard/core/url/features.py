@@ -81,6 +81,11 @@ def url_text(url: NormalizedURL | str) -> str:
     return f"{u.host}{u.path}" + (f"?{u.query}" if u.query else "")
 
 
+def host_text(url: NormalizedURL | str) -> str:
+    """Host only. Input for the n-gram model, which must not learn from path or scheme."""
+    return (normalize_url(url) if isinstance(url, str) else url).host
+
+
 def url_features(url: NormalizedURL | str) -> dict[str, float]:
     """Return features in FEATURE_NAMES order, always the same keys."""
     u = normalize_url(url) if isinstance(url, str) else url

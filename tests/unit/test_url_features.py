@@ -6,6 +6,7 @@ from phishguard.core.url.features import (
     FEATURE_NAMES,
     feature_matrix,
     feature_vector,
+    host_text,
     url_features,
     url_text,
 )
@@ -88,3 +89,10 @@ def test_feature_matrix_shape_and_empty():
     assert m.shape == (2, len(FEATURE_NAMES))
     assert m[0].tolist() == feature_vector("http://a.com")
     assert feature_matrix([]).shape == (0, len(FEATURE_NAMES))
+
+
+def test_host_text_ignores_scheme_path_query_and_port():
+    assert host_text("HTTPS://Login.Example.com:8443/a/b?x=1") == "login.example.com"
+    assert host_text("hxxp://evil[.]xyz/login") == "evil.xyz"
+    with pytest.raises(ValueError):
+        host_text("ftp://example.com")

@@ -3,7 +3,9 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from phishguard.training.common import REPO_ROOT, read_phiusiil
+from phishguard.core.url.features import FEATURE_NAMES
+from phishguard.training.common import REPO_ROOT, load_config, read_phiusiil
+from phishguard.training.models import selected_features
 from phishguard.training.prepare_url import prepare_frame
 
 
@@ -69,3 +71,12 @@ def test_split_real_data_has_no_domain_overlap():
     dev = pd.read_csv(processed / "url_dev.csv")
     test = pd.read_csv(processed / "url_test.csv")
     assert not set(dev["group"]) & set(test["group"])
+
+
+def test_split_config_excludes_known_path_and_scheme_features():
+    excluded = load_config()["exclude_features"]
+    assert {"is_https", "path_len", "url_len", "keyword_count"} <= set(excluded)
+    kept = [FEATURE_NAMES[i] for i in selected_features(excluded)]
+    assert "host_len" in kept and "is_https" not in kept
+    with pytest.raises(ValueError, match="Unknown feature"):
+        selected_features(["not_a_feature"])
