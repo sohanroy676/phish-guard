@@ -1,14 +1,10 @@
 # Progress
 
-<!-- Running log. Append, don't rewrite history. Newest at top.
-     This tracks WORK STATUS (agent-facing, session to session).
-     For the forward-looking feature plan, see ROADMAP.md instead —
-     don't duplicate the full plan here, just what's actually in motion. -->
-
 ## Done
 
-- (feature/fix name) — brief note, date
+- Step 0 scaffold fixes (.gitignore, CI, ADR 0002) — 2026-10-16
+- v0.1.0 skeleton: FastAPI health, React shell, tooling, pinned locks — 2026-10-16
 
 ## In progress
 
-- (feature/fix name) — status
+- Merge of v0.1.0 pending review

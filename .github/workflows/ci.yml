@@ -29,17 +29,17 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: ["3.11"]
+        python-version: ["3.12"]
 
     runs-on: ${{ matrix.os }}
 
     # --- CONFIG: commands for your stack (from tech-stack.md) ---
     env:
-      INSTALL_CMD: pip install -r requirements.txt --break-system-packages
+      INSTALL_CMD: pip install -r requirements.lock
       LINT_CMD: ruff check .
-      FORMAT_CMD: black --check .
-      TEST_CMD: pytest
-      RUN_SECRET_SCAN: "false"
+      FORMAT_CMD: ruff format --check .
+      TEST_CMD: pytest -q -m "not slow"
+      RUN_SECRET_SCAN: "true"
 
     steps:
       - name: Checkout code
@@ -50,8 +50,19 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
       - name: Install dependencies
         run: ${{ env.INSTALL_CMD }}
+
+      - name: Install web dependencies
+        run: npm ci
+        working-directory: web
 
       - name: Lint
         run: ${{ env.LINT_CMD }}
@@ -61,6 +72,14 @@ jobs:
 
       - name: Run tests
         run: ${{ env.TEST_CMD }}
+
+      - name: Web lint
+        run: npm run lint
+        working-directory: web
+
+      - name: Web tests
+        run: npm test
+        working-directory: web
 
       # Belt-and-suspenders with GitHub's built-in secret scanning.
       # Enable by setting RUN_SECRET_SCAN to "true" above.
