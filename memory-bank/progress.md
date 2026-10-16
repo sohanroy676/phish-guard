@@ -16,9 +16,11 @@
 
 - v0.7.0 history, SSE dashboard, retention purge: event bus, `/api/events`, `/api/history` (list, filters, Delete all), `/api/dashboard/summary`, startup and daily purge, React History, Dashboard (Recharts) and Privacy pages; 344 Python tests (3 xfail) and 21 frontend tests passing; live smoke test OK (own-user SSE event only, second user empty, Delete all, RETENTION_DAYS=0 purge on restart) - on `feature/history-dashboard`, not merged - 2026-10-16
 
+- v1.0.0 hardening (v0.8.0 never existed in the roadmap): architecture doc sync, golden score tests, offline integration test, README, SPA deep-link fix, Prettier CRLF config; `pip-audit` clean, `npm audit` 2 known unreachable findings; 369 Python tests (3 xfail) and 21 frontend tests passing; live smoke test OK (all pages, SSE 0.27 s, user isolation, Delete all) - on `feature/v1-hardening`, not merged - 2026-10-16
+
 ## In progress
 
-- `feature/history-dashboard` awaiting review and merge (not pushed, not tagged); v0.8.0 not started
+- `feature/v1-hardening` awaiting review and merge (not pushed, not tagged); the user still has to do the manual Wi-Fi-off pass
 
 ## Not done in v0.4.0 (by design)
 

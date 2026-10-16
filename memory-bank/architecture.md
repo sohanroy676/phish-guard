@@ -12,8 +12,8 @@ phishguard/
 │   └── email.yaml
 ├── src/phishguard/
 │   ├── core/                 # shared by training AND serving
-│   │   ├── url/              normalize.py  features.py  rules.py
-│   │   ├── email/            parse.py  mask.py  features.py  rules.py
+│   │   ├── url/              normalize.py  features.py  rules.py  scoring.py
+│   │   ├── email/            parse.py  mask.py  features.py  rules.py  scoring.py
 │   │   ├── risk.py           # score + rules -> band + wording
 │   │   ├── explain.py        # SHAP / coefficient x value -> top reasons
 │   │   ├── registry.py       # load models/<kind>/<version>/, verify SHA-256 + sklearn version
@@ -28,7 +28,7 @@ phishguard/
 │   └── app/
 │       ├── main.py           # create_app(): middleware, routers, static SPA
 │       ├── config.py  db.py  models_db.py  auth.py  security.py  events.py  retention.py
-│       └── routers/          auth.py  analyze.py  history.py  dashboard.py  meta.py
+│       └── routers/          auth.py  analyze.py  analyze_email.py  events.py  history.py  dashboard.py  meta.py
 ├── web/                      # React app: src/pages, src/components, src/api.ts
 ├── models/                   # url/<version>/model.joblib + manifest.json (joblib git-ignored)
 ├── data/                     # raw/ interim/ processed/ (git-ignored)
@@ -65,7 +65,7 @@ phishguard/
 ## Key modules
 | Module | Responsibility |
 |---|---|
-| `core/url`, `core/email` | Parsing, normalisation, features and rules. The single source of truth for both training and serving |
+| `core/url`, `core/email` | Parsing, normalisation, features and rules. The single source of truth for both training and serving. `scoring.py` wraps a loaded model for the app (text the model reads, score, band inputs) |
 | `core/risk.py` | Thresholds from the manifest + rules → band and fixed wording. Never says "Safe" |
 | `core/explain.py` | Model reasons (SHAP for RF, coefficient × value for LR), each showing the real value |
 | `core/registry.py` | Loads model files only from `models/` and verifies the hash and sklearn version |
