@@ -1,7 +1,7 @@
 # Active Context
 
 ## Current focus
-v1.0.0 is merged to main (8b9265a), pushed, CI green, and tagged v1.0.0. v0.7.0 is tagged too. There was never a v0.8.0. v1 is feature-complete; the only v1 item left is the user's manual Wi-Fi-off pass. The v1.0.0 `make evaluate` was skipped on purpose (never re-run or --force).
+v1.0.0 is merged to main (8b9265a), pushed, CI green, and tagged v1.0.0. v0.7.0 is tagged too. There was never a v0.8.0. v1 is feature-complete and the user's manual pass is done: all roadmap checks and the Wi-Fi-off pass looked right (2026-10-16). The v1.0.0 `make evaluate` was skipped on purpose (never re-run or --force).
 
 ## Recent decisions
 - Band wording fixed in ADR 0002. Band policy in ADR 0005: `t_low` is the lowest threshold with OOF FPR <= 10% (`target_fpr_low`), capped at `t_high`.
@@ -40,4 +40,4 @@ v1.0.0 is merged to main (8b9265a), pushed, CI green, and tagged v1.0.0. v0.7.0 
 - Prettier `--check .` warns on 6 root config files because of CRLF on this Windows checkout (pre-existing, `src` is clean).
 
 ## Next step
-Post-v1 candidates, none started: the user's manual offline pass; v3 URL model with an external legitimate-host source (ADR 0006, needs a manual download and licence check); measure the email model on modern legitimate mail (ADR 0007); the 2 react-router audit findings (needs a breaking upgrade). Branches `feature/email-app`, `feature/history-dashboard`, `feature/v1-hardening` and `fix/golden-skip-without-joblib` are merged and can be deleted (ask the user first). `.claude/settings.json` is committed now.
+Post-v1 candidates, none started: v3 URL model with an external legitimate-host source (ADR 0006, needs a manual download and licence check); measure the email model on modern legitimate mail (ADR 0007); the 2 react-router audit findings (needs a breaking upgrade). Merged local branches were deleted at the user's request. `.claude/settings.json` is committed now.
