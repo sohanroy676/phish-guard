@@ -5,8 +5,8 @@ Version-by-version tasks, tests and expected results are in `memory-bank/detaile
 ## Now (week 1): URL detector end to end
 - v0.1.0 Project skeleton and tooling (done)
 - v0.2.0 URL core: normalise, features, rules (done)
-- v0.3.0 URL data audit, training and locked evaluation (done, awaiting merge)
-- v0.4.0 Login and URL analysis in the app
+- v0.3.0 URL data audit, training and locked evaluation (done)
+- v0.4.0 Login and URL analysis in the app (done, awaiting merge)
 
 ## Next (weeks 2–3): emails, dashboard, finish
 - v0.5.0 Email core and email model
