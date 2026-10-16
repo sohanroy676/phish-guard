@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { api } from "../api";
 import type { AnalysisResult } from "../api";
 import ResultCard from "../components/ResultCard";
@@ -28,6 +29,9 @@ export default function Analyze() {
     <section>
       <h1>Analyze</h1>
       <p>Paste a link to check. PhishGuard never opens it.</p>
+      <p>
+        Checking an email instead? <Link to="/analyze/email">Analyze an email</Link>
+      </p>
       <form onSubmit={submit}>
         <label htmlFor="url">Link</label>
         <input
