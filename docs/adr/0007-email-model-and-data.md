@@ -52,3 +52,22 @@ Out-of-fold on dev: `lr_text` PR-AUC 0.9954, `rf_struct` 0.8944. The locked test
 - The rules (`core/email/rules.py`) and the URL band carry signal the text model cannot, so v0.6.0 must show them separately and not average them in.
 - English only. Non-English mail is dropped from training and is not assessed meaningfully.
 - Retraining is deterministic for a seed, but `prepare_email` takes several minutes (parsing, not fitting).
+
+## Addendum 2026-10-16: measured on modern legitimate mail
+A measurement, not a re-validation. The user exported 124 of their own Gmail messages through Takeout (two folders: "newsletters, receipts, payments" and "promotions"). 123 were scored; 1 was over the 1 MB parser limit. Nothing was used for training or tuning, and the result file (`reports/results/email_modern_ham_own.json`) holds counts only. Models: email v1 `lr_text`, URL v2 for the links. Tool: `python -m phishguard.training.measure_ham`.
+
+| | n | text model High | text High or Suspicious | final band High | final High or Suspicious |
+|---|---|---|---|---|---|
+| all | 123 | 99 (80.5%) | 115 (93.5%) | 101 (82.1%) | 123 (100%, CI 97-100%) |
+| newsletters, receipts, payments | 80 | 75 (93.8%) | 80 (100%) | 77 (96.3%) | 80 (100%) |
+| promotions | 43 | 24 (55.8%) | 35 (81.4%) | 24 (55.8%) | 43 (100%) |
+
+All 123 are legitimate, so these are false-positive rates, against about 1% on the 1999-2003 ham. Reading them:
+- **The text model alone** flags 93.5% (High 80.5%) at the thresholds chosen for 1% FPR. The wording of modern commercial mail ("your account", "payment", "verify", offers) looks like the phishing class.
+- **Links make it worse.** The worst-link URL band was High for 29 and Suspicious for 67 messages: tracking and mail-service domains look like the unfamiliar domains the URL model flags (ADR 0006). No message was Low overall.
+- **Header rules:** `auth_fail` fired on 9 messages and `anchor_href_mismatch` on 2. Those 9 are unexplained: mail exported through Takeout may carry failed or re-written authentication headers, so the rule's rate on live mail is also unmeasured.
+- **Limits:** one person's mailbox, 123 messages, not random, English, mostly one provider's categories. The size of the effect is clear but the exact rate is not. Header results depend on how Gmail wrote them.
+
+Conclusion: the app's High and Suspicious bands carry almost no information on modern commercial mail, and this contradicts the reported 1% FPR for that kind of mail. The existing `MODEL_NOTE` on the result card says the model is weak for newsletters, receipts and notifications; the measurement shows that is understated. No fix has been chosen; options were put to the user.
+
+**Response, step 1 (wording only):** the user chose to change wording first. The band keys, band wording (ADR 0002) and thresholds are unchanged. `MODEL_NOTE` now states the 1999-2003 training data and the measurement above, and the result card shows it above the details when the band is High or Suspicious (below them otherwise). The email model, thresholds and band logic are the follow-up (email v2 with a modern-ham source, or a band-policy change), still the user's decision.

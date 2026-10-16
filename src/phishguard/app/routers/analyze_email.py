@@ -40,8 +40,10 @@ HEADER_RULE_IDS = {"auth_fail", "reply_to_mismatch", "display_name_mismatch"}
 HEADERS_UNAVAILABLE = "Header checks unavailable: paste the original email to enable them"
 HEADERS_CHECKED = "Header checks ran on the original headers."
 MODEL_NOTE = (
-    "The email model was trained on older legitimate mail (1999-2003), so it is a weak signal "
-    "for modern newsletters, receipts and notifications. Treat it as a hint, not a verdict."
+    "The email model was trained on legitimate mail from 1999-2003, so it is a weak signal for "
+    "modern newsletters, receipts, notifications and promotions. In a test on 123 such emails "
+    "it flagged almost all of them. A warning here may only mean this is marketing or "
+    "automated mail, so check the sender, the header checks and the links before deciding."
 )
 _MAX = 2_000_000  # the parser's own size check gives the friendly message
 

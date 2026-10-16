@@ -3,6 +3,11 @@
 ## Current focus
 v1.0.0 is merged to main (8b9265a), pushed, CI green, and tagged v1.0.0. v0.7.0 is tagged too. There was never a v0.8.0. v1 is feature-complete and the user's manual pass is done: all roadmap checks and the Wi-Fi-off pass looked right (2026-10-16). The v1.0.0 `make evaluate` was skipped on purpose (never re-run or --force).
 
+## In progress (post-v1 item 1)
+- Branch `feature/email-modern-ham-measure` (not merged): `training/measure_ham.py` + `tests/unit/test_measure_ham.py` committed (1f7eaef). It measures the email model on a folder of .eml (subfolder = category) and writes counts only to `reports/results/email_modern_ham_<label>.json`; it never overwrites and never trains.
+- MEASURED 2026-10-16 on 123 of the user's own Gmail messages (Takeout mbox split to .eml under `data/raw/email_modern/own/`, git-ignored): final band was Suspicious or High for 100%, High for 82%; text model alone 93.5% flagged (High 80.5%); worst-link URL band High 29 / Suspicious 67 / Low 27; `auth_fail` fired on 9 (unexplained, possibly Takeout headers). Written up as the ADR 0007 addendum; `reports/results/email_modern_ham_own.json`. **Option 2 (wording) chosen and done on `feature/email-card-wording` (stacked on `feature/email-modern-ham-measure`, unmerged): stronger `MODEL_NOTE`, shown above details for High/Suspicious. Band logic/thresholds untouched. Next decision: email v2 or band-policy change.** Original options:: rule tweaks (cannot lower bands), modern-ham email v2 (needs a source and licence; this sample must stay held out), a softer result-card wording/model-note, or document only. Do not tune on this sample without asking.
+- 2 docs commits on local main are still unpushed (user said not yet).
+
 ## Recent decisions
 - Band wording fixed in ADR 0002. Band policy in ADR 0005: `t_low` is the lowest threshold with OOF FPR <= 10% (`target_fpr_low`), capped at `t_high`.
 - lr_char alone decides the band (`manifest.primary`). rf_hand is loadable and evaluated but unused in the app.

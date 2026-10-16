@@ -42,7 +42,8 @@ def test_phishing_text_is_flagged_with_reasons_and_no_percent(email_client):
     assert data["model_reasons"] and all("email text" in m for m in data["model_reasons"])
     assert "%" not in str(data) and "safe" not in data["headline"].lower()
     assert data["sender"] == "evil[.]example"
-    assert "weak signal" in data["model_note"]
+    assert "weak signal" in data["model_note"] and "1999-2003" in data["model_note"]
+    assert "123" in data["model_note"] and "safe" not in data["model_note"].lower()
 
 
 def test_benign_text_is_low_without_reasons(email_client):
