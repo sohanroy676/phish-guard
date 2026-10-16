@@ -46,3 +46,7 @@ v1.0.0 is merged to main (8b9265a), pushed, CI green, and tagged v1.0.0. v0.7.0 
 
 ## Next step
 Post-v1 candidates, none started: v3 URL model with an external legitimate-host source (ADR 0006, needs a manual download and licence check); measure the email model on modern legitimate mail (ADR 0007); the 2 react-router audit findings (needs a breaking upgrade). Merged local branches were deleted at the user's request. `.claude/settings.json` is committed now.
+
+## Session update (auth_fail, option c)
+- Branch `fix/auth-fail-investigation` (fc5e363, unmerged, not pushed): `auth_fail` narrowed. The 9 hits on the held-out Gmail sample were genuine Gmail headers (8x `dmarc=fail p=NONE` via SES, 1x one failed DKIM beside a passing one), not Takeout artefacts. A method now fails only with no passing result of the same method; `dmarc=fail` under `p=none` is ignored. Re-measured as `reports/results/email_modern_ham_own_authfix.json`: auth_fail 9 -> 0, bands unchanged (still 100% High/Suspicious). ADR 0007 has the follow-up paragraph.
+- Next (user chose "(c) then (b)"): plan email v2 with a modern-ham source (needs data: more own mail with a different date range, deduped against the held-out 123, and/or a licensed public set the user approves). The 123-message sample stays held-out. Link-band discounting for tracking domains (option a) only if link bands still dominate after v2. Needs a new ADR 0008 for any band-policy change.
