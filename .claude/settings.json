@@ -5,8 +5,7 @@
       "Read(./.env.local)",
       "Read(./.env.*.local)",
       "Read(./**/*.pem)",
-      "Read(./**/*.key)",
-      "Read(./data/raw/**)"
+      "Read(./**/*.key)"
     ]
   }
 }
