@@ -29,3 +29,5 @@
 ## Not done in v0.4.0 (by design)
 
 - Nothing outstanding from v0.4.0; its deferred items shipped in v0.5.0-v0.7.0
+
+- auth_fail narrowed after investigating the 9 Gmail hits (none were real failures); 373 fast tests passing, lint clean; on `fix/auth-fail-investigation`, not merged — 2026-10-16

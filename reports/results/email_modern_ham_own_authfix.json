@@ -1,0 +1,212 @@
+{
+  "by_category": {
+    "newsletters_recipts_payments": {
+      "final_band_counts": {
+        "cant_assess": 0,
+        "high": 77,
+        "low": 0,
+        "suspicious": 3
+      },
+      "fpr_final_high": {
+        "ci95": [
+          0.8954510802560568,
+          0.9871656636992113
+        ],
+        "k": 77,
+        "n": 80,
+        "rate": 0.9625
+      },
+      "fpr_final_high_or_suspicious": {
+        "ci95": [
+          0.954180263735425,
+          1.0
+        ],
+        "k": 80,
+        "n": 80,
+        "rate": 1.0
+      },
+      "fpr_text_high": {
+        "ci95": [
+          0.8618967084664824,
+          0.9730110223020145
+        ],
+        "k": 75,
+        "n": 80,
+        "rate": 0.9375
+      },
+      "fpr_text_high_or_suspicious": {
+        "ci95": [
+          0.954180263735425,
+          1.0
+        ],
+        "k": 80,
+        "n": 80,
+        "rate": 1.0
+      },
+      "link_band_counts": {
+        "cant_assess": 0,
+        "high": 26,
+        "low": 27,
+        "suspicious": 27
+      },
+      "n": 80,
+      "rule_hits": {
+        "anchor_href_mismatch": 2
+      },
+      "text_band_counts": {
+        "cant_assess": 0,
+        "high": 75,
+        "low": 0,
+        "suspicious": 5
+      },
+      "text_score": {
+        "median": 0.9107758594011304,
+        "p90": 0.9863321135942483
+      },
+      "with_raw_headers": 80
+    },
+    "promotions": {
+      "final_band_counts": {
+        "cant_assess": 0,
+        "high": 24,
+        "low": 0,
+        "suspicious": 19
+      },
+      "fpr_final_high": {
+        "ci95": [
+          0.4110735806551171,
+          0.6956691437607867
+        ],
+        "k": 24,
+        "n": 43,
+        "rate": 0.5581395348837209
+      },
+      "fpr_final_high_or_suspicious": {
+        "ci95": [
+          0.9179874299767729,
+          1.0
+        ],
+        "k": 43,
+        "n": 43,
+        "rate": 1.0
+      },
+      "fpr_text_high": {
+        "ci95": [
+          0.4110735806551171,
+          0.6956691437607867
+        ],
+        "k": 24,
+        "n": 43,
+        "rate": 0.5581395348837209
+      },
+      "fpr_text_high_or_suspicious": {
+        "ci95": [
+          0.6738270676469403,
+          0.9025836441989402
+        ],
+        "k": 35,
+        "n": 43,
+        "rate": 0.813953488372093
+      },
+      "link_band_counts": {
+        "cant_assess": 0,
+        "high": 3,
+        "low": 0,
+        "suspicious": 40
+      },
+      "n": 43,
+      "rule_hits": {},
+      "text_band_counts": {
+        "cant_assess": 0,
+        "high": 24,
+        "low": 8,
+        "suspicious": 11
+      },
+      "text_score": {
+        "median": 0.35399348392681884,
+        "p90": 0.7066182470247125
+      },
+      "with_raw_headers": 43
+    }
+  },
+  "email_model": {
+    "name": "lr_text",
+    "t_high": 0.2858171984386726,
+    "t_low": 0.0530007490274164,
+    "version": "v1"
+  },
+  "label": "own_authfix",
+  "note": "Measurement on a small, hand-supplied, non-random sample of legitimate mail. It is not a population false-positive rate and was not used for training or tuning.",
+  "overall": {
+    "final_band_counts": {
+      "cant_assess": 0,
+      "high": 101,
+      "low": 0,
+      "suspicious": 22
+    },
+    "fpr_final_high": {
+      "ci95": [
+        0.74401174558085,
+        0.8788123121415375
+      ],
+      "k": 101,
+      "n": 123,
+      "rate": 0.8211382113821138
+    },
+    "fpr_final_high_or_suspicious": {
+      "ci95": [
+        0.9697134063272616,
+        0.9999999999999999
+      ],
+      "k": 123,
+      "n": 123,
+      "rate": 1.0
+    },
+    "fpr_text_high": {
+      "ci95": [
+        0.7260616310567942,
+        0.8652270313378776
+      ],
+      "k": 99,
+      "n": 123,
+      "rate": 0.8048780487804879
+    },
+    "fpr_text_high_or_suspicious": {
+      "ci95": [
+        0.8768940620641227,
+        0.9666777629522757
+      ],
+      "k": 115,
+      "n": 123,
+      "rate": 0.9349593495934959
+    },
+    "link_band_counts": {
+      "cant_assess": 0,
+      "high": 29,
+      "low": 27,
+      "suspicious": 67
+    },
+    "n": 123,
+    "rule_hits": {
+      "anchor_href_mismatch": 2
+    },
+    "text_band_counts": {
+      "cant_assess": 0,
+      "high": 99,
+      "low": 8,
+      "suspicious": 16
+    },
+    "text_score": {
+      "median": 0.7803056334510673,
+      "p90": 0.9783653025932451
+    },
+    "with_raw_headers": 123
+  },
+  "skipped": {
+    "too_large": 1
+  },
+  "url_model": {
+    "name": "lr_char",
+    "version": "v2"
+  }
+}

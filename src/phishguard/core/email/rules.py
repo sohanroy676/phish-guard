@@ -12,7 +12,8 @@ from phishguard.core.url.features import brand_tokens
 from phishguard.core.url.normalize import normalize_url
 from phishguard.core.url.rules import RuleHit
 
-_AUTH_FAIL_RE = re.compile(r"\b(spf|dkim|dmarc)=fail\b", re.IGNORECASE)
+_AUTH_RESULT_RE = re.compile(r"\b(spf|dkim|dmarc)=(\w+)", re.IGNORECASE)
+_DMARC_MONITOR_RE = re.compile(r"\bdmarc=fail\s*\([^)]*\bp=none\b", re.IGNORECASE)
 
 
 def _addr_host(addr: str):
@@ -25,12 +26,27 @@ def _addr_host(addr: str):
         return None
 
 
+def _failed_methods(value: str) -> list[str]:
+    """Methods that failed with no passing result of the same method.
+
+    A second DKIM signature that passes, or a DMARC failure under a `p=none` (monitor only)
+    policy, is not a real failure.
+    """
+    results: dict[str, set[str]] = {}
+    for m in _AUTH_RESULT_RE.finditer(value):
+        results.setdefault(m.group(1).upper(), set()).add(m.group(2).lower())
+    failed = sorted(k for k, v in results.items() if "fail" in v and "pass" not in v)
+    if "DMARC" in failed and _DMARC_MONITOR_RE.search(value):
+        failed.remove("DMARC")
+    return failed
+
+
 def _auth_fail_hit(parsed: ParsedEmail) -> RuleHit | None:
     # Only the topmost Authentication-Results header was added by the receiving server.
     # Lower ones may have been written by the sender or a relay, so they are ignored.
     for name, value in parsed.headers:
         if name == "authentication-results":
-            failed = sorted({m.group(1).upper() for m in _AUTH_FAIL_RE.finditer(value)})
+            failed = _failed_methods(value)
             if failed:
                 return RuleHit(
                     "auth_fail",
