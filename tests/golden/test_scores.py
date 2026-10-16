@@ -42,12 +42,17 @@ EMAILS = {
     "raw_phish": lambda: parse_raw(RAW_EMAIL),
 }
 
-_has = lambda kind, version: (MODELS_DIR / kind / version / "manifest.json").is_file()  # noqa: E731
+PRIMARY = {"url": "lr_char.joblib", "email": "lr_text.joblib"}
 
 
-def compute() -> dict:
+def _has(kind: str, version: str) -> bool:
+    """The manifest is committed but the .joblib is git-ignored, so test the model file."""
+    return (MODELS_DIR / kind / version / PRIMARY[kind]).is_file()
+
+
+def compute(kinds=("url", "email")) -> dict:
     out: dict = {"url_version": URL_VERSION, "email_version": EMAIL_VERSION, "url": {}, "email": {}}
-    if _has("url", URL_VERSION):
+    if "url" in kinds and _has("url", URL_VERSION):
         s = load_url_scorer(URL_VERSION)
         for u in URLS:
             score = s.score(normalize_url(u))
@@ -55,7 +60,7 @@ def compute() -> dict:
                 "score": round(score, 6),
                 "band": model_band(score, s.t_high, s.t_low),
             }
-    if _has("email", EMAIL_VERSION):
+    if "email" in kinds and _has("email", EMAIL_VERSION):
         s = load_email_scorer(EMAIL_VERSION)
         for name, make in EMAILS.items():
             score = s.score(make())
@@ -71,7 +76,7 @@ def _golden() -> dict:
 
 
 def _check(kind: str):
-    golden, current = _golden(), compute()
+    golden, current = _golden(), compute((kind,))
     assert golden[f"{kind}_version"] == current[f"{kind}_version"]
     assert set(golden[kind]) == set(current[kind]), "golden inputs and computed inputs differ"
     for key, want in golden[kind].items():
