@@ -9,7 +9,7 @@ seed: 42
 test_fraction: 0.2        # locked test = 1 of 5 grouped folds
 n_folds: 5                # grouped CV on dev
 target_fpr: 0.01          # t_high: dev out-of-fold FPR <= this
-target_recall_low: 0.95   # t_low: highest threshold keeping this phishing recall
+target_fpr_low: 0.10      # t_low: dev out-of-fold FPR <= this (caps the Suspicious band, ADR 0005)
 # PhiUSIIL leaks through scheme and path: every legitimate URL is https with an empty path
 # (see reports/audit_url.md). The RF therefore sees host-derived features only.
 exclude_features:

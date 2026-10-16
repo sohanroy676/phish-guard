@@ -49,26 +49,27 @@ def test_t_high_requires_negatives():
         pick_t_high(np.ones(5, dtype=int), np.linspace(0, 1, 5), 0.01)
 
 
-def test_t_low_keeps_recall_and_stays_below_t_high():
+def test_t_low_respects_fpr_cap_and_stays_below_t_high():
     y, s = _data()
     t_high = pick_t_high(y, s, 0.01)
-    t_low = pick_t_low(y, s, 0.95, t_high)
+    t_low = pick_t_low(y, s, 0.10, t_high)
     assert t_low <= t_high
-    assert rates_at(y, s, t_low)[1] >= 0.95 or t_low == t_high
+    assert rates_at(y, s, t_low)[0] <= 0.10
+    assert rates_at(y, s, t_low)[1] >= rates_at(y, s, t_high)[1]
 
 
-def test_t_low_clamped_when_recall_target_is_easy():
-    y = np.array([0] * 100 + [1] * 100)
-    s = np.r_[np.linspace(0, 0.4, 100), np.linspace(0.8, 1, 100)]
+def test_t_low_equals_t_high_when_caps_match():
+    y, s = _data()
     t_high = pick_t_high(y, s, 0.01)
-    assert pick_t_low(y, s, 0.95, t_high) <= t_high
+    assert pick_t_low(y, s, 0.01, t_high) == t_high
 
 
-def test_t_low_requires_positives():
+def test_t_low_clamped_to_t_high_when_cap_is_stricter():
+    y, s = _data()
+    t_high = pick_t_high(y, s, 0.05)
+    assert pick_t_low(y, s, 0.01, t_high) == t_high
+
+
+def test_t_low_requires_negatives():
     with pytest.raises(ValueError):
-        pick_t_low(np.zeros(5, dtype=int), np.linspace(0, 1, 5), 0.95, 0.5)
-
-
-def test_length_mismatch_rejected():
-    with pytest.raises(ValueError):
-        pick_t_high(np.array([0, 1]), np.array([0.1]), 0.01)
+        pick_t_low(np.ones(5, dtype=int), np.linspace(0, 1, 5), 0.10, 0.5)

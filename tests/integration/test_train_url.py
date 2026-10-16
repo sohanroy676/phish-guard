@@ -26,7 +26,7 @@ def cfg_path(tmp_path):
         "test_fraction": 0.2,
         "n_folds": 3,
         "target_fpr": 0.01,
-        "target_recall_low": 0.95,
+        "target_fpr_low": 0.10,
         "exclude_features": ["is_https"],
         "grids": {
             "lr_char": {"C": [1.0], "ngram_range": [[2, 3]], "max_features": [5000]},
