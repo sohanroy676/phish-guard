@@ -3,6 +3,7 @@
 import email
 import re
 from dataclasses import dataclass
+from email.errors import HeaderParseError
 from email.header import decode_header, make_header
 from email.message import Message
 from email.utils import parseaddr
@@ -113,7 +114,7 @@ def _decode_header(value) -> str:
     text = _clean(str(value))
     try:
         return str(make_header(decode_header(text)))
-    except (LookupError, UnicodeError, ValueError):
+    except (LookupError, UnicodeError, ValueError, HeaderParseError):
         return text
 
 
