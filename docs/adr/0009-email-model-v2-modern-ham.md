@@ -26,3 +26,6 @@ Train a v2 `lr_text` with a modern-ham side from a new self-collected mailbox in
 
 ## Update 2026-10-17
 Source approved by the owner (own mailbox, any mail, any range, no exclusions). Status stays Proposed until the data is prepared and the model is trained and measured; then it becomes Accepted or is superseded.
+
+## Update 2026-10-17 (second source decision)
+The source is widened to the owner's mailbox plus several friends' mailboxes, each with the person's consent. Scope: automated mail only (Promotions, Updates, Social, Purchases); no Spam, Trash, Sent or Chats; each person's mail kept separate; no date restriction beyond what the exports contain (min and max are reported). Raw mbox files stay in git-ignored `data/raw/email_modern/own/v2/<Name>/`; people appear in reports and commits only as `person_N`, with the mapping in a git-ignored file. v2 ham is modern mail only. A requirements check (counts only, PASS/FAIL) runs before any preparation or training. The 123 held-out messages stay held out. Status stays Proposed until the model is trained and measured.
