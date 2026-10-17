@@ -34,6 +34,11 @@ def test_anchor_text_and_href_are_returned_as_a_pair():
     assert parsed.has_html
 
 
+def test_malformed_encoded_word_header_does_not_crash():
+    parsed = parse_raw("From: a@b.example\nSubject: =?utf-8?B?abcde?=\n\nhi")
+    assert "abc" in parsed.subject
+
+
 def test_headers_are_decoded_and_flagged_raw():
     parsed = parse_raw(
         "From: =?utf-8?q?Ren=C3=A9e?= <R@Bank.Example>\nSubject: =?utf-8?q?Hi_=E2=9C=93?=\n\nhi"
