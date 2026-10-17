@@ -37,3 +37,5 @@
 - Gate recall tool `measure_phish.py` built and merged; measurement and ADR 0008 addendum waiting on the user's manual phishing_pot download; email v2 plan not written - 2026-10-16
 
 - phishing_pot gate recall measured (gate: phishing flagged 98.2% -> 88.7%), ADR 0008 addendum, parse_raw malformed-header fix, email v2 plan + ADR 0009 proposed; 400 fast tests passing; on `feature/email-gate-recall-measure`, not merged - 2026-10-17
+
+- Email v2 (ADR 0009): modern-ham prepare pipeline, sender/recipient masking, lr_text v2 trained and measured once on the 123 held-out and phishing_pot; 438 fast tests passing; on `feature/email-v2-modern-ham`, not merged; v2 not the default - 2026-10-17

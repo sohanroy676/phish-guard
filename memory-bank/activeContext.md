@@ -70,3 +70,11 @@ Post-v1 candidates, none started: v3 URL model with an external legitimate-host 
 - Next: user reviews/merges the branch; then source approval for v2.
 
 - 2026-10-17 later: the user APPROVED the v2 source (own mailbox, any mail, any date range, no exclusions). The mbox export is not provided yet. Branch merged to main with git merge -m and pushed. Next: user supplies the mbox into `data/raw/email_modern/v2/`, then prepare (dedupe vs the 123, language filter, per-sender cap, group split by sender domain).
+
+## Session update (email v2 trained and measured) - 2026-10-17
+- Branch `feature/email-v2-modern-ham` (6 commits, unmerged, not pushed). Source: own mailbox + 5 friends (6 mailboxes, aliases person_1..6; name map is git-ignored `data/raw/email_modern/v2_alias_map.json`, mbox in `data/raw/email_modern/own/v2/`, converted .eml in `data/raw/email_modern/v2_eml/`). Counts only, never text.
+- Built: opt-in `MaskContext` in `core/email/mask.py` (sender name/domain/brand, recipient names after a greeting, `sender_context_stoplist.txt`), manifest `mask: sender` read by `EmailScorer`; `training/prepare_email_v2.py` + `configs/email_v2.yaml`; additive hooks in `prepare_email.py` (`mask_for`, `Record.domain`, domain-joined groups) and `train.py` (`--config`, `dev_file`, `mask`). v1 output unchanged; 438 fast tests pass.
+- Requirements check: only Social <60 (24) FAILed; user accepted. 124th .eml in `own/` is unparseable (123 scored).
+- Model `models/email/v2` (joblib git-ignored, manifest committed): dev OOF PR-AUC 0.996, t_high 0.770, t_low 0.443. Held-out 123: text alone flagged 17.9% (v1 93.5%), final with gate 59.3% (v1+gate 82.1%), links now cause most flags. phishing_pot: text-only recall 72.8% (v1 95.2%), gated 82.5% (v1 88.7%), ungated 89.9%. ADR 0009 has the results. Do not re-measure or tune on the 123 or phishing_pot.
+- Recommendation: keep the ADR 0008 gate; next is a link-band policy for tracker/wrapper domains (ADR 0010). v2 is NOT the default: the user's `.env` still says `MODEL_VERSION_EMAIL=v1`. No v2 golden scores yet. `reddy` (surname) left in the model on purpose.
+- Never run `evaluate` or `--force`. Next: user reviews and merges the branch; decide whether to switch to v2.
