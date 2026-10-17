@@ -1,0 +1,34 @@
+# Email v2 training config (ADR 0009). Read by phishguard.training.prepare_email_v2 and train.
+# Ham: automated mail from consenting mailboxes, converted to .eml under modern_dir/<person_N>/
+# (git-ignored, never committed). Phishing: the same Nazario corpus and temporal hold-out as v1.
+raw_dir: data/raw/email
+modern_dir: data/raw/email_modern/v2_eml
+holdout_dir: data/raw/email_modern/own   # the 123-message held-out sample: never trained on
+holdout_skip: v2                         # the raw v2 mbox folder lives below holdout_dir
+processed_dir: data/processed
+reports_dir: reports
+models_dir: models
+version: v2
+dev_file: email_v2_dev.csv
+mask: sender          # the model reads text with the sender's name and brand hidden
+seed: 42
+test_fraction: 0.2
+n_folds: 5
+target_fpr: 0.01
+target_fpr_low: 0.10
+sender_cap: 10
+exclude_features: [n_links, n_link_domains, has_html]
+sources:                  # Nazario only; modern mail is not hashed (private)
+  nazario/phishing-2015.mbox: 7523e62a5e6e4ee8134ab8b1a628e423097a7779e1003b28422864aa34f1c319
+  nazario/phishing-2016.mbox: 42393e4d686193bfb879d1608c23fd4d3b698ccd4d73f0e1d2276ba709718483
+  nazario/phishing-2017.mbox: 110fba876b38b44035bf065788952674bc68a7b6879c345a515a9ac844b1d704
+  nazario/phishing-2018.mbox: 83f49cf2a76c7b29b205d22d8778e46848e36af0f15ee1df126a543696acd48d
+  nazario/phishing-2019.mbox: cab39d6fcb38cf80cdaabb3e6ffd1222777e2fcaac7e8480321b7f729c2e3c0e
+  nazario/phishing-2020.mbox: 99e20bf25f5e8556d37103f2c8140cd75181a62d3df91df8acf9d9aece9f08bb
+  nazario/phishing-2021.mbox: 636707cff42245d1482e4ae8a2c03369717a5e06bf9d1a0f4ec5dcd846661cee
+  nazario/phishing-2022.mbox: a6291e2cb990204766fce425423949b403cce4ae6a660fc8d08812e40a063fa7
+  nazario/phishing-2023.mbox: 5007f1c1dc91b15e93e988afa3a1cf402e15c88f765d3057be8bfec50dae1fe8
+  nazario/phishing-2024.mbox: 60afa40a2757170093a2bde31ec9cda4e54d33992203ce04bfbbc86d2e5e5b99
+  nazario/phishing-2025.mbox: f1fa7e0fe35c9a16f36d9aa20ade7e1d3908d1d0c1d917b8c53c8aa799ec1c8f
+grids:
+  lr_text: {C: [1.0, 10.0], ngram_range: [[1, 2]], max_features: [100000]}

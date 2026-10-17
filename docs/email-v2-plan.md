@@ -47,3 +47,13 @@ Do not collect, convert or train anything until the owner approves, in writing: 
 
 ## Owner decision 2026-10-17
 The owner approved using their own mailbox: any mail, any date range, no exclusions. The mbox export itself has not been provided yet. Because personal correspondence may be included: raw mail stays in git-ignored `data/raw/email_modern/v2/`, no text is logged or committed, and only counts and manifests are written. Still excluded by design: the 123 held-out messages (dedupe first).
+
+## Source update 2026-10-17: owner plus friends' mail
+The v2 source is now the owner's mailbox plus mail from several friends, all with their consent.
+- **Scope agreed with them:** automated mail only (Gmail categories Promotions, Updates, Social, Purchases). No Spam, Trash, Sent or Chats. Each person's mail is kept separate. Date range: no restriction beyond what each export contains; the check script reports the min and max dates so the range is recorded as a fact, not assumed.
+- **Layout:** `data/raw/email_modern/own/v2/<Name>/*.mbox` (git-ignored, one folder per person, possibly several `.mbox` files). The folder name is the provenance key. In reports, commits and docs people appear only as `person_1`, `person_2`, ... (assigned in sorted folder-name order). The name-to-alias mapping lives in the git-ignored `data/raw/email_modern/v2_alias_map.json` and is never committed.
+- **Counts only:** no message text, subject, address or display name is printed, quoted or committed. Checks run as scripts, not by hand-reading mail.
+- **Converted `.eml` go elsewhere:** `data/raw/email_modern/v2_eml/`, never under `own/`, so the held-out 123 measurement folder stays clean.
+- **Ham side:** v2 ham is modern mail only (Enron and SpamAssassin ham are dropped from v2) so the model cannot separate classes by era.
+- **Requirements check before preparing** (aggregate counts, PASS/FAIL): at least 5 mailboxes, about 400 usable messages after filters, at least 60 per category, 200+ distinct sender domains, 0 Spam/Trash/Sent, no overlap with the 123.
+- **Risks added:** friends' mail is third-party personal data, so the same privacy rules apply to everyone's mail. Results are specific to these mailboxes.

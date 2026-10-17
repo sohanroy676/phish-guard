@@ -1,0 +1,10 @@
+# Place, brand and topic words removed from the email text only for models trained with
+# `mask: sender` (ADR 0009). The v2 n-gram review found them separating modern mailboxes from the
+# Nazario corpus by who or where the mail came from, not by intent.
+google
+gmail
+india
+indian
+ca
+ai
+francisco

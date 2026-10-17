@@ -1,0 +1,135 @@
+{
+  "conflicting_dropped": 9,
+  "dev_groups": 1890,
+  "dev_phishing": 1924,
+  "dev_rows": 3266,
+  "held_out_messages": 123,
+  "modern_filters_per_person": {
+    "person_1": {
+      "near_duplicate_of_held_out": 20,
+      "no_allowed_category": 68,
+      "no_sender_domain": 1,
+      "non_english": 67,
+      "seen": 1393,
+      "selected": 201,
+      "sender_cap": 1012,
+      "unparseable": 24
+    },
+    "person_2": {
+      "duplicate_message_id": 260,
+      "near_duplicate_of_held_out": 155,
+      "no_allowed_category": 875,
+      "no_sender_domain": 7,
+      "non_english": 1026,
+      "seen": 10816,
+      "selected": 870,
+      "sender_cap": 7561,
+      "unparseable": 62
+    },
+    "person_3": {
+      "duplicate_message_id": 2,
+      "near_duplicate_of_held_out": 15,
+      "no_allowed_category": 10,
+      "non_english": 13,
+      "seen": 173,
+      "selected": 26,
+      "sender_cap": 107
+    },
+    "person_4": {
+      "duplicate_message_id": 768,
+      "near_duplicate_of_held_out": 142,
+      "no_allowed_category": 220,
+      "no_sender_domain": 6,
+      "non_english": 584,
+      "seen": 5880,
+      "selected": 395,
+      "sender_cap": 3721,
+      "unparseable": 44
+    },
+    "person_5": {
+      "duplicate_message_id": 4737,
+      "near_duplicate_of_held_out": 50,
+      "no_allowed_category": 2993,
+      "non_english": 1525,
+      "seen": 10883,
+      "selected": 239,
+      "sender_cap": 1225,
+      "unparseable": 114
+    },
+    "person_6": {
+      "duplicate_message_id": 3326,
+      "near_duplicate_of_held_out": 11,
+      "no_allowed_category": 40,
+      "non_english": 30,
+      "seen": 5065,
+      "selected": 101,
+      "sender_cap": 1541,
+      "unparseable": 16
+    }
+  },
+  "modern_senders_selected": 337,
+  "newest_year": 2025,
+  "per_source": {
+    "nazario": {
+      "exact_duplicate": 383,
+      "kept": 2807,
+      "non_english": 255,
+      "seen": 3466,
+      "too_large": 7,
+      "too_short": 10,
+      "unparseable": 4
+    },
+    "person_1": {
+      "exact_duplicate": 6,
+      "kept": 195,
+      "seen": 201
+    },
+    "person_2": {
+      "exact_duplicate": 59,
+      "kept": 811,
+      "seen": 870
+    },
+    "person_3": {
+      "exact_duplicate": 1,
+      "kept": 25,
+      "seen": 26
+    },
+    "person_4": {
+      "exact_duplicate": 49,
+      "kept": 346,
+      "seen": 395
+    },
+    "person_5": {
+      "exact_duplicate": 25,
+      "kept": 214,
+      "seen": 239
+    },
+    "person_6": {
+      "exact_duplicate": 7,
+      "kept": 94,
+      "seen": 101
+    }
+  },
+  "rows_before_grouping": 4492,
+  "seed": 42,
+  "source_sha256": {
+    "nazario/phishing-2015.mbox": "7523e62a5e6e4ee8134ab8b1a628e423097a7779e1003b28422864aa34f1c319",
+    "nazario/phishing-2016.mbox": "42393e4d686193bfb879d1608c23fd4d3b698ccd4d73f0e1d2276ba709718483",
+    "nazario/phishing-2017.mbox": "110fba876b38b44035bf065788952674bc68a7b6879c345a515a9ac844b1d704",
+    "nazario/phishing-2018.mbox": "83f49cf2a76c7b29b205d22d8778e46848e36af0f15ee1df126a543696acd48d",
+    "nazario/phishing-2019.mbox": "cab39d6fcb38cf80cdaabb3e6ffd1222777e2fcaac7e8480321b7f729c2e3c0e",
+    "nazario/phishing-2020.mbox": "99e20bf25f5e8556d37103f2c8140cd75181a62d3df91df8acf9d9aece9f08bb",
+    "nazario/phishing-2021.mbox": "636707cff42245d1482e4ae8a2c03369717a5e06bf9d1a0f4ec5dcd846661cee",
+    "nazario/phishing-2022.mbox": "a6291e2cb990204766fce425423949b403cce4ae6a660fc8d08812e40a063fa7",
+    "nazario/phishing-2023.mbox": "5007f1c1dc91b15e93e988afa3a1cf402e15c88f765d3057be8bfec50dae1fe8",
+    "nazario/phishing-2024.mbox": "60afa40a2757170093a2bde31ec9cda4e54d33992203ce04bfbbc86d2e5e5b99",
+    "nazario/phishing-2025.mbox": "f1fa7e0fe35c9a16f36d9aa20ade7e1d3908d1d0c1d917b8c53c8aa799ec1c8f"
+  },
+  "temporal_groups": 427,
+  "temporal_mixed_group_dropped": 6,
+  "temporal_phishing": 395,
+  "temporal_rows": 730,
+  "test_groups": 471,
+  "test_phishing": 481,
+  "test_rows": 816
+}
