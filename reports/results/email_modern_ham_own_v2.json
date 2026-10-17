@@ -1,0 +1,215 @@
+{
+  "by_category": {
+    "newsletters_recipts_payments": {
+      "bulk_mail": 24,
+      "final_band_counts": {
+        "cant_assess": 17,
+        "high": 28,
+        "low": 23,
+        "suspicious": 12
+      },
+      "fpr_final_high": {
+        "ci95": [
+          0.2545439440982969,
+          0.4592019767810756
+        ],
+        "k": 28,
+        "n": 80,
+        "rate": 0.35
+      },
+      "fpr_final_high_or_suspicious": {
+        "ci95": [
+          0.392972274311075,
+          0.607027725688925
+        ],
+        "k": 40,
+        "n": 80,
+        "rate": 0.5
+      },
+      "fpr_text_high": {
+        "ci95": [
+          0.08793954037414209,
+          0.2441342750110605
+        ],
+        "k": 12,
+        "n": 80,
+        "rate": 0.15
+      },
+      "fpr_text_high_or_suspicious": {
+        "ci95": [
+          0.1680610581209431,
+          0.3548488100113445
+        ],
+        "k": 20,
+        "n": 80,
+        "rate": 0.25
+      },
+      "link_band_counts": {
+        "cant_assess": 0,
+        "high": 26,
+        "low": 44,
+        "suspicious": 10
+      },
+      "n": 80,
+      "rule_hits": {
+        "anchor_href_mismatch": 2
+      },
+      "text_band_counts": {
+        "cant_assess": 0,
+        "high": 12,
+        "low": 60,
+        "suspicious": 8
+      },
+      "text_score": {
+        "median": 0.22441680967726074,
+        "p90": 0.9350131124223037
+      },
+      "with_raw_headers": 80
+    },
+    "promotions": {
+      "bulk_mail": 7,
+      "final_band_counts": {
+        "cant_assess": 5,
+        "high": 3,
+        "low": 5,
+        "suspicious": 30
+      },
+      "fpr_final_high": {
+        "ci95": [
+          0.024011153791962503,
+          0.18609268553034927
+        ],
+        "k": 3,
+        "n": 43,
+        "rate": 0.06976744186046512
+      },
+      "fpr_final_high_or_suspicious": {
+        "ci95": [
+          0.622551917005606,
+          0.8684646153075517
+        ],
+        "k": 33,
+        "n": 43,
+        "rate": 0.7674418604651163
+      },
+      "fpr_text_high": {
+        "ci95": [
+          0.0,
+          0.08201257002322722
+        ],
+        "k": 0,
+        "n": 43,
+        "rate": 0.0
+      },
+      "fpr_text_high_or_suspicious": {
+        "ci95": [
+          0.012848990317319689,
+          0.15455775923863058
+        ],
+        "k": 2,
+        "n": 43,
+        "rate": 0.046511627906976744
+      },
+      "link_band_counts": {
+        "cant_assess": 0,
+        "high": 3,
+        "low": 10,
+        "suspicious": 30
+      },
+      "n": 43,
+      "rule_hits": {},
+      "text_band_counts": {
+        "cant_assess": 0,
+        "high": 0,
+        "low": 41,
+        "suspicious": 2
+      },
+      "text_score": {
+        "median": 0.028465752372530878,
+        "p90": 0.0866193036256945
+      },
+      "with_raw_headers": 43
+    }
+  },
+  "email_model": {
+    "name": "lr_text",
+    "t_high": 0.7699468980010788,
+    "t_low": 0.44325488519420697,
+    "version": "v2"
+  },
+  "label": "own_v2",
+  "note": "Measurement on a small, hand-supplied, non-random sample of legitimate mail. It is not a population false-positive rate and was not used for training or tuning.",
+  "overall": {
+    "bulk_mail": 31,
+    "final_band_counts": {
+      "cant_assess": 22,
+      "high": 31,
+      "low": 28,
+      "suspicious": 42
+    },
+    "fpr_final_high": {
+      "ci95": [
+        0.18360980012600733,
+        0.3354754211263262
+      ],
+      "k": 31,
+      "n": 123,
+      "rate": 0.25203252032520324
+    },
+    "fpr_final_high_or_suspicious": {
+      "ci95": [
+        0.5051369744531611,
+        0.6761915486812049
+      ],
+      "k": 73,
+      "n": 123,
+      "rate": 0.5934959349593496
+    },
+    "fpr_text_high": {
+      "ci95": [
+        0.05669218194661626,
+        0.16280678369241697
+      ],
+      "k": 12,
+      "n": 123,
+      "rate": 0.0975609756097561
+    },
+    "fpr_text_high_or_suspicious": {
+      "ci95": [
+        0.12118768785846241,
+        0.25598825441914996
+      ],
+      "k": 22,
+      "n": 123,
+      "rate": 0.17886178861788618
+    },
+    "link_band_counts": {
+      "cant_assess": 0,
+      "high": 29,
+      "low": 54,
+      "suspicious": 40
+    },
+    "n": 123,
+    "rule_hits": {
+      "anchor_href_mismatch": 2
+    },
+    "text_band_counts": {
+      "cant_assess": 0,
+      "high": 12,
+      "low": 101,
+      "suspicious": 10
+    },
+    "text_score": {
+      "median": 0.05626015317513788,
+      "p90": 0.7387784613311078
+    },
+    "with_raw_headers": 123
+  },
+  "skipped": {
+    "too_large": 1
+  },
+  "url_model": {
+    "name": "lr_char",
+    "version": "v2"
+  }
+}
