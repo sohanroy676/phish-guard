@@ -68,3 +68,5 @@ Post-v1 candidates, none started: v3 URL model with an external legitimate-host 
 - Result `reports/results/email_phish_pot.json` (n=12,247): ungated flagged 98.2% (High 55.9, Susp 42.3, Can't 0.4, Low 1.4); gated flagged 88.7% (High 51.8, Susp 36.9, Can't 10.0, Low 1.2); 1,156 (9.4%) lost their flag. Gate trades ~9 points phishing recall for 18 points fewer false flags on own mail. ADR 0008 addendum written. Do not re-run or tune.
 - `docs/email-v2-plan.md` and ADR 0009 (Proposed) written. NOTHING collected or trained. **Waiting on the user to approve the v2 source (mailbox, date range, exclusions).** The 123-sample stays held out. Never run `evaluate` or `--force`.
 - Next: user reviews/merges the branch; then source approval for v2.
+
+- 2026-10-17 later: the user APPROVED the v2 source (own mailbox, any mail, any date range, no exclusions). The mbox export is not provided yet. Branch merged to main with git merge -m and pushed. Next: user supplies the mbox into `data/raw/email_modern/v2/`, then prepare (dedupe vs the 123, language filter, per-sender cap, group split by sender domain).

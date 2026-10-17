@@ -23,3 +23,6 @@ Train a v2 `lr_text` with a modern-ham side from a new self-collected mailbox in
 - Result is specific to one mailbox; it must not be reported as general accuracy.
 - The gate in ADR 0008 may be relaxed or removed afterwards; that needs a new ADR.
 - Raw mail stays git-ignored; only counts and manifests are committed.
+
+## Update 2026-10-17
+Source approved by the owner (own mailbox, any mail, any range, no exclusions). Status stays Proposed until the data is prepared and the model is trained and measured; then it becomes Accepted or is superseded.

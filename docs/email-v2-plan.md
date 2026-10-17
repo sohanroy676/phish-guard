@@ -44,3 +44,6 @@ Modern senders carry brand names and sender-specific boilerplate that would let 
 
 ## Approval gate
 Do not collect, convert or train anything until the owner approves, in writing: (1) the mailbox, (2) the date range, (3) any exclusions. ADR 0009 is Proposed until then.
+
+## Owner decision 2026-10-17
+The owner approved using their own mailbox: any mail, any date range, no exclusions. The mbox export itself has not been provided yet. Because personal correspondence may be included: raw mail stays in git-ignored `data/raw/email_modern/v2/`, no text is logged or committed, and only counts and manifests are written. Still excluded by design: the 123 held-out messages (dedupe first).
