@@ -17,6 +17,7 @@ EMAIL_TOKEN = "emailtoken"
 MONEY_TOKEN = "moneytoken"
 NUM_TOKEN = "numtoken"
 BRAND_TOKEN = "brandtoken"
+NAME_TOKEN = "nametoken"
 
 URL_RE = re.compile(r"""(?i)\b(?:https?://|www\.)[^\s<>"'\[\]]+""")
 TRAILING_PUNCT = ".,;:!?)"
@@ -101,6 +102,29 @@ class MaskContext:
         return tuple(sorted(found, key=lambda t: (-len(t), t)))
 
 
+# "Hi Priya," names the recipient. Names say who received the mail, not what it wants, so with a
+# context they are hidden. Generic salutations ("Dear Customer") stay: they are a phishing cue.
+_GREETING_RE = re.compile(
+    r"(?i:\b(?:hi|hello|hey|dear|greetings))[ \t]+"
+    r"([^\W\d_][\w'’\-]*)(?:[ \t]+([^\W\d_][\w'’\-]*))?"
+)
+_SALUTATIONS = frozenset(
+    """customer customers user users client clients valued member members sir sirs madam friend
+    friends there all everyone team account holder owner subscriber colleague colleagues
+    beneficiary winner applicant admin administrator webmail email mail support staff employee
+    student recipient buyer seller lady gentleman sir/madam""".split()
+)
+
+
+def _hide_names(match: re.Match) -> str:
+    out = match.group(0)
+    for word in match.groups():
+        if not word or not word[0].isupper() or word.lower() in _SALUTATIONS | _GENERIC_TERMS:
+            break  # a lower-case or generic word ends the name
+        out = out.replace(word, NAME_TOKEN, 1)
+    return out
+
+
 @cache
 def _context_re(terms: tuple[str, ...]) -> re.Pattern | None:
     if not terms:
@@ -113,7 +137,9 @@ def _context_re(terms: tuple[str, ...]) -> re.Pattern | None:
 def mask_text(text: str, ctx: MaskContext | None = None) -> str:
     text = URL_RE.sub(_mask_url, text)
     text = _EMAIL_RE.sub(EMAIL_TOKEN, text)
-    if ctx is not None and (pattern := _context_re(ctx.terms())) is not None:
-        text = pattern.sub(BRAND_TOKEN, text)
+    if ctx is not None:
+        text = _GREETING_RE.sub(_hide_names, text)
+        if (pattern := _context_re(ctx.terms())) is not None:
+            text = pattern.sub(BRAND_TOKEN, text)
     text = _MONEY_RE.sub(MONEY_TOKEN, text)
     return _NUM_RE.sub(NUM_TOKEN, text)

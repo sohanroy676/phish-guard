@@ -12,6 +12,7 @@ import numpy as np
 from phishguard.core.email.mask import (
     BRAND_TOKEN,
     MONEY_TOKEN,
+    NAME_TOKEN,
     NUM_TOKEN,
     URL_TOKEN,
     MaskContext,
@@ -84,15 +85,21 @@ def anchor_mismatches(links: tuple[Link, ...]) -> list[Link]:
 # footers in old plain-text ham, hrefs that never reach the text of HTML phishing), so the text
 # model does not see them. Masking still produces them, other code can use them.
 _FORMAT_TOKENS_RE = re.compile(f"{NUM_TOKEN}|{URL_TOKEN}")
-# With a sender context the brand token is dropped too: how often a mail names its own sender is
-# a property of the corpus, not of intent.
-_BRAND_TOKEN_RE = re.compile(BRAND_TOKEN)
+# With a sender context the brand and name tokens are dropped too: how often a mail names its own
+# sender or recipient is a property of the corpus, not of intent.
+_CONTEXT_TOKENS_RE = re.compile(f"{BRAND_TOKEN}|{NAME_TOKEN}")
 _SEPARATOR_RE = re.compile(r"[_=\-*#~]{3,}")  # rulers such as "_____" or "-----" in footers
 
 
 @cache
 def _stoplist_re() -> re.Pattern:
     entries = sorted(load_list("artefact_stoplist"), key=len, reverse=True)
+    return re.compile(r"\b(?:" + "|".join(re.escape(e) for e in entries) + r")\b")
+
+
+@cache
+def _context_stoplist_re() -> re.Pattern:
+    entries = sorted(load_list("sender_context_stoplist"), key=len, reverse=True)
     return re.compile(r"\b(?:" + "|".join(re.escape(e) for e in entries) + r")\b")
 
 
@@ -106,7 +113,8 @@ def model_text(parsed: ParsedEmail, ctx: MaskContext | None = None) -> str:
     text = _SEPARATOR_RE.sub(" ", mask_text(f"{parsed.subject}\n{parsed.text}", ctx).lower())
     text = _FORMAT_TOKENS_RE.sub(" ", text)
     if ctx is not None:
-        text = _BRAND_TOKEN_RE.sub(" ", text)
+        text = _CONTEXT_TOKENS_RE.sub(" ", text)
+        text = _context_stoplist_re().sub(" ", text)
     return _stoplist_re().sub(" ", text)[:MODEL_TEXT_CHARS]
 
 

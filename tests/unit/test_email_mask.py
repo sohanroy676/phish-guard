@@ -145,3 +145,45 @@ def test_model_text_with_context_drops_the_brand_and_without_does_not():
     assert "acmeshop" in model_text(parsed)
     masked = model_text(parsed, sender_context(parsed))
     assert "acmeshop" not in masked and BRAND_TOKEN not in masked
+
+
+# --- recipient names and the context stoplist ---------------------------------------------------
+
+from phishguard.core.email.features import model_text, sender_context  # noqa: E402,I001
+from phishguard.core.email.mask import NAME_TOKEN  # noqa: E402
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("Hi Priya, your order", f"Hi {NAME_TOKEN}, your order"),
+        ("HELLO Priya Kumar welcome", f"HELLO {NAME_TOKEN} {NAME_TOKEN} welcome"),
+        ("hey Priya!", f"hey {NAME_TOKEN}!"),
+        ("Dear Customer, verify", "Dear Customer, verify"),
+        ("Dear valued client", "Dear valued client"),
+        ("Hi team, update", "Hi team, update"),
+        ("Hi there Priya", "Hi there Priya"),  # a generic word ends the name
+        ("hi priya", "hi priya"),  # only capitalised words are treated as names
+        ("Hi, Priya is here", "Hi, Priya is here"),
+        ("Dear Mr Smith", f"Dear {NAME_TOKEN} {NAME_TOKEN}"),
+        ("Hi Zoë-Marie O'Neil", f"Hi {NAME_TOKEN} {NAME_TOKEN}"),
+        ("Chi Priya", "Chi Priya"),  # 'hi' inside a word is not a greeting
+    ],
+)
+def test_greeting_names_are_hidden_only_with_a_context(text, expected):
+    assert mask_text(text, MaskContext()) == expected
+    assert mask_text(text) == text  # no context: unchanged
+
+
+def test_context_stoplist_and_names_leave_model_text_without_them():
+    parsed = from_fields("Hi Priya", "Learn <x@y.example>", "Hello Priya, google in India and AI")
+    assert "priya" in model_text(parsed) and "google" in model_text(parsed)
+    out = model_text(parsed, sender_context(parsed))
+    for gone in ("priya", "google", "india", "nametoken", "brandtoken"):
+        assert gone not in out.split()
+    assert "hello" in out
+
+
+def test_greeting_masking_is_idempotent():
+    once = mask_text("Hi Priya Kumar, dear Bob", MaskContext())
+    assert mask_text(once, MaskContext()) == once
