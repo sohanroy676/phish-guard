@@ -31,3 +31,21 @@ Lists: `redirectors.txt` is rspamd `conf/maps.d/redirectors.inc` (Apache-2.0, do
 - Measured once on the held-out 123 (`reports/results/email_modern_ham_own_bulkgate.json`, no tuning): flagged (High or Suspicious) 100% -> 82%, High 82% -> 67%, Can't assess 0 -> 22. Only 31 of 123 were detected as bulk, so most of the remaining flags are non-bulk mail the gate does not touch. 29 High links remain.
 - Not measured: the recall cost on phishing (Nazario newest year is the locked temporal set, used once, and `evaluate` must not be re-run). Add a recall-cost measurement before relying on this in the wild.
 - This is still not a fix for the model: retraining on modern ham is the root-cause work.
+
+## Addendum 2026-10-17: recall cost measured on phishing_pot
+Source: phishing_pot (https://github.com/rf-peixoto/phishing_pot), git commit `2933c0341b1248678c1e246b36d352add2edf0f1`, licence CC BY-NC 4.0. Used non-commercially, as a counts-only measurement with owner approval. No message text, sender or link is stored or redistributed; only `reports/results/email_phish_pot.json` (counts and rates). It was not used for training or tuning and was measured once (the first attempt crashed on a malformed header before writing anything; fixed in 54aa377, then run again, no tuning).
+
+Scored 12,247 of 12,269 `.eml` (2 not an email, 20 over the size limit). Email model v1, URL model v2. This is a public sample of phishing, not a population recall, and its era and mix are unknown.
+
+| Band | Ungated | Gated |
+|---|---|---|
+| High | 55.9% (6,847) | 51.8% (6,347) |
+| Suspicious | 42.3% (5,175) | 36.9% (4,519) |
+| Can't assess | 0.4% (53) | 10.0% (1,229) |
+| Low | 1.4% (172) | 1.2% (152) |
+| High or Suspicious | 98.2% | 88.7% (95% CI 88.2-89.3) |
+
+- Lost their flag because of the gate: 1,156 of 12,247 (9.4%, 95% CI 8.9-10.0). Band changed at all: 1,189 (9.7%).
+- Text model alone flagged 95.2%; 2,442 (19.9%) messages were detected as bulk.
+- Reading: the gate trades about 9 points of phishing recall for 18 points fewer false flags on the author's own mail (100% -> 82%). Whether that is worth it is a policy call; it is a reason to prefer the v2 model (ADR 0009, proposed) over relying on the gate.
+- Limits: 82% (own mail) and 88.7% (phishing) come from different samples; neither is a general accuracy figure.
