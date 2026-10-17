@@ -1,0 +1,43 @@
+{
+  "created_utc": "2026-10-17T16:23:15+00:00",
+  "data_sha256": "6d8ad422ccebb0face463e8f7bcf879361bf974d5481ac97d7c03e772c63a44e",
+  "dev_rows": 3266,
+  "exclude_features": [
+    "n_links",
+    "n_link_domains",
+    "has_html"
+  ],
+  "kind": "email",
+  "mask": "sender",
+  "models": {
+    "lr_text": {
+      "dev_oof": {
+        "fpr_at_t_high": 0.009687034277198211,
+        "fpr_at_t_low": 0.09985096870342772,
+        "pr_auc": 0.9961666403697966,
+        "recall_at_t_high": 0.9334719334719335,
+        "recall_at_t_low": 0.9833679833679834
+      },
+      "file": "lr_text.joblib",
+      "input": "text",
+      "params": {
+        "C": 10.0,
+        "max_features": 100000,
+        "ngram_range": [
+          1,
+          2
+        ]
+      },
+      "sha256": "1a7daf1f710a497eb5866e5d7937f78d95a877ff0bd07decb4b0b4f4ee696631",
+      "t_high": 0.7699468980010788,
+      "t_low": 0.44325488519420697
+    }
+  },
+  "primary": "lr_text",
+  "python_version": "3.12.12",
+  "seed": 42,
+  "sklearn_version": "1.9.1",
+  "target_fpr": 0.01,
+  "target_fpr_low": 0.1,
+  "version": "v2"
+}
