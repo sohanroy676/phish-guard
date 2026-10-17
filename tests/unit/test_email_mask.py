@@ -54,3 +54,94 @@ def test_multiple_values_are_all_masked():
 def test_masking_is_idempotent():
     once = mask_text("Pay $500 to john@x.com via http://a.b/c 2024")
     assert mask_text(once) == once
+
+
+# --- sender mask context (ADR 0009) -------------------------------------------------------------
+
+from phishguard.core.email.mask import BRAND_TOKEN, MaskContext  # noqa: E402
+from phishguard.core.email.parse import from_fields  # noqa: E402
+
+
+def ctx(addr="news@mail.acmeshop.co.uk", name="AcmeShop Deals"):
+    return MaskContext.from_sender(addr, name)
+
+
+def test_no_context_output_is_unchanged():
+    text = "AcmeShop sale: Pay $500 to john@x.com via http://a.b/c 2024"
+    assert mask_text(text, None) == mask_text(text)
+    assert BRAND_TOKEN not in mask_text(text)
+
+
+def test_brand_from_domain_label_and_display_name_is_hidden():
+    out = mask_text("Thanks for shopping at AcmeShop! Deals from acmeshop.co.uk", ctx())
+    assert "acmeshop" not in out.lower()
+    assert out.count(BRAND_TOKEN) == 3
+
+
+def test_brand_only_in_display_name():
+    c = MaskContext.from_sender("billing@x-mailer.example", "Zorbo Telecom")
+    out = mask_text("Your Zorbo Telecom bill; zorbo is great", c)
+    assert "zorbo" not in out.lower() and "telecom" not in out.lower()
+
+
+def test_brand_inside_a_longer_word_is_kept():
+    out = mask_text("acmeshopper and preacmeshop and acmeshops", ctx())
+    assert out == "acmeshopper and preacmeshop and acmeshops"
+
+
+def test_possessive_and_punctuation_still_match():
+    out = mask_text("(AcmeShop's) offer, AcmeShop.", ctx())
+    assert out == f"({BRAND_TOKEN}'s) offer, {BRAND_TOKEN}."
+
+
+@pytest.mark.parametrize("text", ["ACMESHOP", "acmeshop", "AcMeShOp", "ACMEshop DEALS"])
+def test_case_tricks(text):
+    assert "acmeshop" not in mask_text(text, ctx()).lower()
+
+
+def test_subdomains_use_the_registered_domain_label():
+    c = MaskContext.from_sender("a@deep.mail.news.bigcorp.com.au", "")
+    assert mask_text("welcome to bigcorp", c) == f"welcome to {BRAND_TOKEN}"
+
+
+def test_idn_and_punycode_are_both_hidden():
+    c = MaskContext.from_sender("info@xn--bcher-kva.com", "")
+    assert BRAND_TOKEN in mask_text("Willkommen bei bücher", c)
+    assert BRAND_TOKEN in mask_text("see xn--bcher-kva", c)
+    c2 = MaskContext.from_sender("info@bücher.com", "")
+    assert BRAND_TOKEN in mask_text("Willkommen bei BÜCHER", c2)
+
+
+def test_empty_sender_changes_nothing():
+    text = "Pay $5 at acme 2024"
+    assert mask_text(text, MaskContext.from_sender("", "")) == mask_text(text)
+    assert mask_text(text, MaskContext.from_sender(None, None)) == mask_text(text)
+    assert MaskContext().terms() == ()
+
+
+def test_generic_and_short_names_are_not_masked():
+    c = MaskContext.from_sender("noreply@ab.example", "The Support Team")
+    text = "the support team will contact you"
+    assert mask_text(text, c) == text
+
+
+def test_context_masking_is_idempotent():
+    once = mask_text("AcmeShop sent 12 offers from acmeshop.co.uk", ctx())
+    assert mask_text(once, ctx()) == once
+
+
+def test_regex_metacharacters_in_names_are_literal():
+    c = MaskContext.from_sender("x@y.example", "A+B (Co.) [Shop]")
+    assert mask_text("welcome", c) == "welcome"  # must not raise or match everything
+    assert mask_text("visit A+B (Co.) [Shop] now", c) == f"visit {BRAND_TOKEN} now"
+
+
+def test_model_text_with_context_drops_the_brand_and_without_does_not():
+    from phishguard.core.email.features import model_text, sender_context
+
+    parsed = from_fields(
+        "AcmeShop weekly", "AcmeShop Deals <news@acmeshop.co.uk>", "Big sale today"
+    )
+    assert "acmeshop" in model_text(parsed)
+    masked = model_text(parsed, sender_context(parsed))
+    assert "acmeshop" not in masked and BRAND_TOKEN not in masked

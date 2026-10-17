@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from typing import Any
 
-from phishguard.core.email.features import model_text
+from phishguard.core.email.features import model_text, sender_context
 from phishguard.core.email.parse import ParsedEmail
 from phishguard.core.registry import MODELS_DIR, ModelIntegrityError, load_manifest, load_model
 
@@ -15,10 +15,11 @@ class EmailScorer:
     version: str
     t_high: float
     t_low: float
+    mask_sender: bool = False  # manifest `mask: sender`: the model was trained with sender masking
 
     def text(self, parsed: ParsedEmail) -> str:
         """The string the model reads: masked subject and body, no headers or link targets."""
-        return model_text(parsed)
+        return model_text(parsed, sender_context(parsed) if self.mask_sender else None)
 
     def score(self, parsed: ParsedEmail) -> float:
         """Phishing probability in 0..1 from that string only."""
@@ -32,4 +33,11 @@ def load_email_scorer(version: str, root=MODELS_DIR) -> EmailScorer:
     if entry is None or entry.get("input") != "text":
         raise ModelIntegrityError(f"email/{version} primary model {name!r} is not a text model.")
     model = load_model("email", version, name, root)
-    return EmailScorer(model, name, version, float(entry["t_high"]), float(entry["t_low"]))
+    return EmailScorer(
+        model,
+        name,
+        version,
+        float(entry["t_high"]),
+        float(entry["t_low"]),
+        mask_sender=manifest.get("mask") == "sender",
+    )

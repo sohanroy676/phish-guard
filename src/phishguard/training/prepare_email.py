@@ -10,7 +10,7 @@ import mailbox
 import os
 import random
 import re
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -19,7 +19,8 @@ import pandas as pd
 from sklearn.model_selection import StratifiedGroupKFold
 
 from phishguard.core.email.features import FEATURE_NAMES, email_features, model_text
-from phishguard.core.email.parse import EmailTooLarge, NotAnEmail, parse_raw
+from phishguard.core.email.mask import MaskContext
+from phishguard.core.email.parse import EmailTooLarge, NotAnEmail, ParsedEmail, parse_raw
 from phishguard.core.email.rules import run_rules
 from phishguard.core.registry import sha256_file
 from phishguard.training.common import load_config, resolve, write_json
@@ -46,6 +47,7 @@ class Record:
     source: str  # nazario | spamassassin | enron
     year: int | None  # only Nazario files are dated
     raw: bytes
+    domain: str | None = None  # sender registered domain; set only for modern ham (ADR 0009)
 
 
 def looks_english(text: str) -> bool:
@@ -111,8 +113,14 @@ def check_sources(cfg: dict[str, Any]) -> dict[str, str]:
     return found
 
 
-def build_frame(records: Iterable[Record]) -> tuple[pd.DataFrame, dict[str, Any]]:
-    """Parse every record with core/email. Drops unreadable, tiny and exact-duplicate messages."""
+def build_frame(
+    records: Iterable[Record],
+    mask_for: Callable[[ParsedEmail], MaskContext | None] | None = None,
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    """Parse every record with core/email. Drops unreadable, tiny and exact-duplicate messages.
+
+    `mask_for` gives the mask context for a message (v2 hides sender and brand names).
+    """
     rows: list[dict[str, Any]] = []
     seen: set[tuple[int, str]] = set()
     counts: dict[str, Any] = {"per_source": {}}
@@ -131,7 +139,8 @@ def build_frame(records: Iterable[Record]) -> tuple[pd.DataFrame, dict[str, Any]
         except NotAnEmail:
             bump(rec.source, "unparseable")
             continue
-        text = model_text(parsed)
+        ctx = mask_for(parsed) if mask_for else None
+        text = model_text(parsed, ctx)
         if len(text.split()) < MIN_WORDS:
             bump(rec.source, "too_short")
             continue
@@ -150,14 +159,39 @@ def build_frame(records: Iterable[Record]) -> tuple[pd.DataFrame, dict[str, Any]
                 "source": rec.source,
                 "year": rec.year,
                 "text": text,
+                "domain": rec.domain,
                 "rule_score": 10 * sum(h.severity == "high" for h in hits) + len(hits),
-                **email_features(parsed),
+                **email_features(parsed, ctx),
             }
         )
         bump(rec.source, "kept")
-    frame = pd.DataFrame(rows, columns=[c for c in OUT_COLUMNS if c != "group"])
+    columns = [c for c in OUT_COLUMNS if c != "group"]
+    if any(r["domain"] for r in rows):
+        columns.append("domain")  # sender domains: only modern ham has them
+    frame = pd.DataFrame(rows, columns=columns)
     frame["year"] = frame["year"].astype("Int64")
     return frame, counts
+
+
+def _groups(frame: pd.DataFrame, seed: int) -> list[str]:
+    """Near-duplicate groups; rows sharing a sender domain are joined too (modern ham only)."""
+    ids = group_ids(frame["text"].tolist(), seed)
+    if "domain" not in frame or frame["domain"].isna().all():
+        return [f"g{i}" for i in ids]
+    parent = {f"g{i}": f"g{i}" for i in ids}
+
+    def find(x: str) -> str:
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    first: dict[str, str] = {}
+    for i, domain in zip(ids, frame["domain"], strict=True):
+        if isinstance(domain, str):
+            a, b = find(f"g{i}"), find(first.setdefault(domain, f"g{i}"))
+            parent[a] = b
+    return [find(f"g{i}") for i in ids]
 
 
 def split_frame(
@@ -169,7 +203,7 @@ def split_frame(
     Nazario year plus the locked-test ham, because ham has no dates (a held-out ham estimate).
     """
     frame = frame.copy()
-    frame["group"] = [f"g{i}" for i in group_ids(frame["text"].tolist(), seed)]
+    frame["group"] = _groups(frame, seed)
     counts: dict[str, int] = {"rows_before_grouping": len(frame)}
 
     # One text appearing with both labels would be identical input with opposite labels.

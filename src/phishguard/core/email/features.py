@@ -9,7 +9,14 @@ from functools import cache
 
 import numpy as np
 
-from phishguard.core.email.mask import MONEY_TOKEN, NUM_TOKEN, URL_TOKEN, mask_text
+from phishguard.core.email.mask import (
+    BRAND_TOKEN,
+    MONEY_TOKEN,
+    NUM_TOKEN,
+    URL_TOKEN,
+    MaskContext,
+    mask_text,
+)
 from phishguard.core.email.parse import Link, ParsedEmail
 from phishguard.core.lists import load_list
 from phishguard.core.url.features import is_ip_host
@@ -77,6 +84,9 @@ def anchor_mismatches(links: tuple[Link, ...]) -> list[Link]:
 # footers in old plain-text ham, hrefs that never reach the text of HTML phishing), so the text
 # model does not see them. Masking still produces them, other code can use them.
 _FORMAT_TOKENS_RE = re.compile(f"{NUM_TOKEN}|{URL_TOKEN}")
+# With a sender context the brand token is dropped too: how often a mail names its own sender is
+# a property of the corpus, not of intent.
+_BRAND_TOKEN_RE = re.compile(BRAND_TOKEN)
 _SEPARATOR_RE = re.compile(r"[_=\-*#~]{3,}")  # rulers such as "_____" or "-----" in footers
 
 
@@ -86,19 +96,26 @@ def _stoplist_re() -> re.Pattern:
     return re.compile(r"\b(?:" + "|".join(re.escape(e) for e in entries) + r")\b")
 
 
-def model_text(parsed: ParsedEmail) -> str:
+def sender_context(parsed: ParsedEmail) -> MaskContext:
+    """The mask context a model trained with `mask: sender` reads, in training and serving."""
+    return MaskContext.from_sender(parsed.from_addr, parsed.from_display)
+
+
+def model_text(parsed: ParsedEmail, ctx: MaskContext | None = None) -> str:
     """Masked, lowercased subject and body with corpus artefacts removed. Input of `lr_text`."""
-    text = _SEPARATOR_RE.sub(" ", mask_text(f"{parsed.subject}\n{parsed.text}").lower())
+    text = _SEPARATOR_RE.sub(" ", mask_text(f"{parsed.subject}\n{parsed.text}", ctx).lower())
     text = _FORMAT_TOKENS_RE.sub(" ", text)
+    if ctx is not None:
+        text = _BRAND_TOKEN_RE.sub(" ", text)
     return _stoplist_re().sub(" ", text)[:MODEL_TEXT_CHARS]
 
 
-def email_features(parsed: ParsedEmail) -> dict[str, float]:
+def email_features(parsed: ParsedEmail, ctx: MaskContext | None = None) -> dict[str, float]:
     domains = [link_domain(link.href) for link in parsed.links]
     real = [d for d in domains if d]
     shorteners = load_list("shorteners")
     text = parsed.text
-    masked = mask_text(f"{parsed.subject}\n{text}").lower()
+    masked = mask_text(f"{parsed.subject}\n{text}", ctx).lower()
     letters = [ch for ch in text if ch.isalpha()]
     values = {
         "n_links": len(parsed.links),

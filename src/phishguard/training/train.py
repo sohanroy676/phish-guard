@@ -68,7 +68,7 @@ def train_model(name, cfg, inputs, y, folds) -> tuple[Any, dict[str, Any]]:
 def run(config_path: Path | None = None, kind: str = "url") -> dict[str, Any]:
     spec = KINDS[kind]
     cfg = load_config(config_path or spec.config)
-    dev_path = resolve(cfg["processed_dir"]) / f"{kind}_dev.csv"
+    dev_path = resolve(cfg["processed_dir"]) / cfg.get("dev_file", f"{kind}_dev.csv")
     if not dev_path.is_file():
         raise FileNotFoundError(f"{dev_path} not found. Run prepare first.")
     dev = pd.read_csv(dev_path)
@@ -103,6 +103,7 @@ def run(config_path: Path | None = None, kind: str = "url") -> dict[str, Any]:
         "target_fpr_low": cfg["target_fpr_low"],
         "exclude_features": cfg["exclude_features"],
         "dev_rows": len(dev),
+        **({"mask": cfg["mask"]} if "mask" in cfg else {}),  # e.g. "sender", read by the scorer
         "primary": max(models, key=lambda m: models[m]["dev_oof"]["pr_auc"]),
         "models": models,
     }
@@ -113,8 +114,9 @@ def run(config_path: Path | None = None, kind: str = "url") -> dict[str, Any]:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Train the url or email models.")
     parser.add_argument("kind", choices=list(KINDS))
+    parser.add_argument("--config", type=Path, help="Config file (default: the kind's own).")
     args = parser.parse_args()
-    manifest = run(kind=args.kind)
+    manifest = run(args.config, kind=args.kind)
     for name, entry in manifest["models"].items():
         print(name, entry["dev_oof"], "t_high", entry["t_high"], "t_low", entry["t_low"])
 

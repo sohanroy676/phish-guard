@@ -72,3 +72,14 @@ def test_lr_reasons_uses_the_email_template(email_models_root):
     text = scorer.text(from_fields("Urgent", "", "verify your account password now urgent"))
     reasons = lr_reasons(scorer.model, text, template=EMAIL_REASON)
     assert reasons and all(r.startswith("The email text contains") for r in reasons)
+
+
+def test_scorer_masks_the_sender_only_when_the_manifest_says_so():
+    from phishguard.core.email.parse import from_fields
+    from phishguard.core.email.scoring import EmailScorer
+
+    parsed = from_fields("Deals", "AcmeShop <news@acmeshop.com>", "Welcome to AcmeShop today")
+    plain = EmailScorer(None, "lr_text", "v1", 0.9, 0.5)
+    masked = EmailScorer(None, "lr_text", "v2", 0.9, 0.5, mask_sender=True)
+    assert "acmeshop" in plain.text(parsed)
+    assert "acmeshop" not in masked.text(parsed)
