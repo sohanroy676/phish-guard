@@ -82,3 +82,21 @@ Written before the run. Question: which component drives the remaining flags on 
 - **Buckets** (each flagged message in exactly one, by which removal keeps the flag): `rule` (survives with text and links forced Low), `either_alone`, `text_only`, `links_only`, `interaction`.
 - **Also counted:** text band and worst link band shares, flags raised by the URL model alone on counted links, flags with no counted link, bulk and aligned-dmarc shares, gate losses, rule ids on flagged mail.
 - **No tuning.** No threshold, rule, gate or list changes follow from this run alone. A band-policy change needs ADR 0011 and the owner's approval.
+
+## Flag-source result (2026-10-18)
+One run, counts only (`reports/results/email_flag_sources.json`), same 1,004 messages. The deployed arm reproduced 541 flagged under v1 (53.9%) and 400 under v2 (39.8%). Rates below are shares of the 1,004 messages; "of flagged" is out of 541 (v1) or 400 (v2).
+
+| Bucket (which removal keeps the flag) | v1 | v2 |
+|---|---|---|
+| links alone | 125 | 284 |
+| text model alone | 152 | 11 |
+| either alone suffices | 167 | 8 |
+| rules alone (text and links forced Low) | 97 | 97 |
+| interaction | 0 | 0 |
+
+- **Under v2, links drive the flags:** 284 of 400 flagged (71%) need only the links, and 343 messages (34.2% of all mail) have a counted link whose URL model band alone is High or Suspicious. Worst link band over all mail: High 209, Suspicious 258, Low 537.
+- **Under v1, the text model drives about as many:** text band High 466 and Suspicious 309 of 1,004; 319 of the 541 flags survive with the links removed. The ADR 0008 gate already cancels 371 flags (ungated 91% would be flagged); v1 text-model flags are what is left after it.
+- **Rules are a floor of 97 (9.7%) under both models:** these survive with text and links forced Low. Rule ids on flagged mail: `anchor_href_mismatch` 84, `reply_to_mismatch` 53-57, `display_name_mismatch` 12, `auth_fail` 1. Almost all mail here has an aligned dmarc pass (993 of 1,004) and 62% is bulk, so these are legitimate-sender patterns (anchor text vs href on tracked links, a different Reply-To).
+- Flagged mail with no counted link: 91 (v1), 15 (v2). Nothing was tuned.
+
+**Reading.** The ADR 0010 exemption could not help because the link flags are on third-party and tracker-style hosts, not the sender's own popular domain. Two components are worth a design discussion, both needing ADR 0011 and the owner's approval before any code: (a) the URL model's High/Suspicious bands on links in authenticated mail, which was trained on PhiUSIIL URLs and is out of domain for long tracking URLs; (b) the `anchor_href_mismatch` and `reply_to_mismatch` rules on authenticated bulk mail. Any such change must be measured against phishing_pot recall, which cannot be re-run here, so a new non-reused phishing sample or an explicit owner exception is needed first. No change is made by this ADR.
