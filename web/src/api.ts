@@ -22,6 +22,7 @@ export interface LinkResult {
   headline: string;
   lookalike: boolean;
   discounted: boolean;
+  discount_reason?: "wrapper" | "sender_owned" | null;
   rule_warnings: RuleWarning[];
 }
 

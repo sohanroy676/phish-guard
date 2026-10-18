@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from phishguard.app import auth, security
 from phishguard.app.models_db import Analysis, SessionRow
-from phishguard.core.email.bulk import bulk_info, is_link_wrapper
+from phishguard.core.email.bulk import BulkInfo, bulk_info, link_discount
 from phishguard.core.email.features import anchor_mismatches
 from phishguard.core.email.parse import (
     EmailTooLarge,
@@ -59,7 +59,7 @@ class EmailRequest(BaseModel):
     source: str = Field("", max_length=_MAX)
 
 
-def _score_links(parsed: ParsedEmail, url_scorer) -> list[dict]:
+def _score_links(parsed: ParsedEmail, url_scorer, bulk: BulkInfo) -> list[dict]:
     """Run each distinct web link through the URL pipeline, rules included."""
     mismatched = {link.href for link in anchor_mismatches(parsed.links)}
     results: list[dict] = []
@@ -72,9 +72,10 @@ def _score_links(parsed: ParsedEmail, url_scorer) -> list[dict]:
             url = normalize_url(link.href)
         except UnsupportedURL:
             continue  # mailto:, javascript: and the like are not web links
-        wrapper = is_link_wrapper(url)
-        if wrapper:
-            # The destination is hidden, so the link cannot be rated and is not counted (ADR 0008).
+        reason = link_discount(url, bulk)
+        if reason:
+            # A wrapper hides its destination (ADR 0008); a sender-owned link on an authenticated
+            # popular domain is not evidence either way (ADR 0010). Neither is counted or Low.
             hits, band = [], CANT_ASSESS
         else:
             hits = run_url_rules(url)
@@ -84,7 +85,8 @@ def _score_links(parsed: ParsedEmail, url_scorer) -> list[dict]:
                 "display_host": security.defang_host(url),
                 "band": band,
                 "headline": HEADLINES[band],
-                "discounted": wrapper,
+                "discounted": reason is not None,
+                "discount_reason": reason,
                 "lookalike": link.href in mismatched,
                 "rule_warnings": [asdict(h) for h in hits],
             }
@@ -98,11 +100,11 @@ def _analyze(parsed: ParsedEmail, request: Request, row: SessionRow, db: Session
         raise HTTPException(status_code=503, detail="The email model is not loaded.")
     started = perf_counter()
     url_scorer = request.app.state.url_scorer
-    links = _score_links(parsed, url_scorer) if url_scorer else []
+    bulk = bulk_info(parsed)
+    links = _score_links(parsed, url_scorer, bulk) if url_scorer else []
 
     hits = run_email_rules(parsed)
     text_band = model_band(scorer.score(parsed), scorer.t_high, scorer.t_low)
-    bulk = bulk_info(parsed)
     decision = email_decision(
         text_band,
         [link["band"] for link in links if not link["discounted"]],

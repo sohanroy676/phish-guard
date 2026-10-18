@@ -46,7 +46,9 @@ export default function EmailResultCard({ result }: { result: EmailResult }) {
                 {link.discounted && (
                   <em>
                     {" "}
-                    Link tracker or redirect: the real destination is hidden, so it is not counted.
+                    {link.discount_reason === "sender_owned"
+                      ? "Link to the sender's own domain, not counted."
+                      : "Link tracker or redirect: the real destination is hidden, so it is not counted."}
                   </em>
                 )}
                 {link.lookalike && (

@@ -12,6 +12,8 @@ NAMES = [
     "keywords",
     "email_keywords",
     "artefact_stoplist",
+    "popular_domains",
+    "user_content_hosts",
 ]
 
 

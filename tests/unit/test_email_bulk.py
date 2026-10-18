@@ -102,3 +102,68 @@ def test_without_headers_a_text_only_high_is_capped_at_suspicious():
     assert email_decision(HIGH, [], [], headers_available=False).band == SUSPICIOUS
     assert email_decision(HIGH, [HIGH], [], headers_available=False).band == HIGH
     assert email_decision(HIGH, [], STRONG, headers_available=False).band == HIGH
+
+
+# ADR 0010: links on the authenticated sender's own popular domain
+@pytest.fixture
+def popular(monkeypatch):
+    from phishguard.core.email import bulk as bulk_module
+
+    real = bulk_module.load_list
+    monkeypatch.setattr(
+        bulk_module,
+        "load_list",
+        lambda name: (
+            frozenset({"shop.com", "evil-ok.com"}) if name == "popular_domains" else real(name)
+        ),
+    )
+
+
+def owned(link: str, headers: str = AUTH_PASS) -> bool:
+    from phishguard.core.email.bulk import is_sender_owned_link
+
+    return is_sender_owned_link(normalize_url(link), bulk_info(parse_raw(mail(headers))))
+
+
+def test_sender_owned_link_needs_everything(popular):
+    assert owned("https://shop.com/deal")
+    assert owned("https://track.shop.com/deal")  # same registered domain
+    assert not owned("https://other.com/deal")  # not the sender's domain
+    assert not owned("https://shop.com/deal", "")  # no authentication results
+    fail = AUTH_PASS.replace("dmarc=pass", "dmarc=fail")
+    assert not owned("https://shop.com/deal", fail)
+    forged = AUTH_PASS.replace("header.from=shop.com", "header.from=evilshop.com")
+    assert not owned("https://shop.com/deal", forged)
+
+
+def test_sender_owned_link_not_for_unlisted_domain_or_pasted_fields(popular):
+    from phishguard.core.email.bulk import is_sender_owned_link
+
+    unlisted = AUTH_PASS.replace("shop.com", "unlisted.org")
+    parsed = parse_raw(mail(unlisted).replace("news@shop.com", "news@unlisted.org"))
+    assert not is_sender_owned_link(normalize_url("https://unlisted.org/x"), bulk_info(parsed))
+    fields = from_fields("s", "news@shop.com", "body")
+    assert not is_sender_owned_link(normalize_url("https://shop.com/x"), bulk_info(fields))
+
+
+def test_sender_owned_link_with_a_url_rule_hit_still_counts(popular):
+    # A userinfo trick on the sender's own domain must not be waved through.
+    assert not owned("https://paypal.com@shop.com/login")
+
+
+def test_shared_hosts_are_never_in_the_bundled_list():
+    from phishguard.core.lists import load_list
+
+    popular_list = load_list("popular_domains")
+    assert "facebook.com" in popular_list
+    for host in ("google.com", "web.app", "github.io", "sharepoint.com", "bit.ly"):
+        assert host not in popular_list
+
+
+def test_link_discount_reasons(popular):
+    from phishguard.core.email.bulk import link_discount
+
+    bulk = bulk_info(parse_raw(mail(AUTH_PASS)))
+    assert link_discount(normalize_url("https://shop.com/a"), bulk) == "sender_owned"
+    assert link_discount(normalize_url("https://bit.ly/abc"), bulk) == "wrapper"
+    assert link_discount(normalize_url("https://other.com/a"), bulk) is None

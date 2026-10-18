@@ -3,7 +3,8 @@
     python -m phishguard.training.measure_phish --dir data/raw/email_phishing_pot --label pot
 
 Reads `.eml` files, scores each one with the gate (ADR 0008) and without it (the pre-gate
-decision: no bulk markers, link wrappers scored like any link) and writes counts and rates to
+decision: no bulk markers, link wrappers scored like any link) and with the ADR 0010 link
+policy (sender-owned links left out), and writes counts and rates to
 `reports/results/email_phish_<label>.json`. No message text, subject, sender, address or file
 name is written. An existing result file is never overwritten. Never run on the locked or
 temporal evaluation sets.
@@ -35,9 +36,16 @@ def score_one(parsed: ParsedEmail, scorer, url_scorer) -> dict[str, Any]:
     plain_link, _ = worst_link_band(parsed, url_scorer, False) if url_scorer else ("low", False)
     gated = email_decision(text_band, [gated_link], hits, bulk, parsed.has_raw_headers, hidden)
     ungated = email_decision(text_band, [plain_link], hits)
+    policy_link, policy_hidden = (
+        worst_link_band(parsed, url_scorer, bulk=bulk) if url_scorer else ("low", False)
+    )
+    policy = email_decision(
+        text_band, [policy_link], hits, bulk, parsed.has_raw_headers, policy_hidden
+    )
     return {
         "text_band": text_band,
         "gated_band": gated.band,
+        "policy_band": policy.band,
         "ungated_band": ungated.band,
         "bulk_mail": bulk.is_bulk,
         "raw_headers": parsed.has_raw_headers,
@@ -67,6 +75,15 @@ def summarise(rows: list[dict[str, Any]]) -> dict[str, Any]:
             sum(
                 r["ungated_band"] in (SUSPICIOUS, HIGH)
                 and r["gated_band"] not in (SUSPICIOUS, HIGH)
+                for r in rows
+            ),
+            n,
+        ),
+        "policy": block("policy_band"),
+        "changed_by_link_policy": _rate(sum(r["policy_band"] != r["gated_band"] for r in rows), n),
+        "lost_flag_to_link_policy": _rate(
+            sum(
+                r["gated_band"] in (SUSPICIOUS, HIGH) and r["policy_band"] not in (SUSPICIOUS, HIGH)
                 for r in rows
             ),
             n,

@@ -1,0 +1,36 @@
+# Big domains that serve content anyone can publish (documents, shares, sites, storage, links).
+# A genuine notification from one of them can still point at an attacker's page, so a link to the
+# sender's own domain is never exempted here (ADR 0010). Applied on top of free_hosting.txt and
+# the public-suffix private section when popular_domains.txt is built.
+google.com
+googleusercontent.com
+googleapis.com
+gstatic.com
+microsoft.com
+live.com
+office.com
+sharepoint.com
+onedrive.com
+windows.net
+azurewebsites.net
+amazonaws.com
+cloudfront.net
+dropbox.com
+box.com
+notion.so
+airtable.com
+typeform.com
+canva.com
+docusign.net
+wetransfer.com
+mediafire.com
+mega.nz
+medium.com
+wordpress.com
+tumblr.com
+wixsite.com
+squarespace.com
+square.site
+duckdns.org
+ipfs.io
+workers.dev

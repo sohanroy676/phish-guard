@@ -12,6 +12,7 @@ from phishguard.core.email.parse import ParsedEmail
 from phishguard.core.email.rules import _addr_host
 from phishguard.core.lists import load_list
 from phishguard.core.url.normalize import NormalizedURL
+from phishguard.core.url.rules import run_rules as run_url_rules
 
 _BULK_HEADERS = {"list-unsubscribe", "list-id"}
 _BULK_PRECEDENCE = {"bulk", "list", "junk"}
@@ -23,6 +24,7 @@ _HEADER_FROM_RE = re.compile(r"\bheader\.from=([^\s;()]+)", re.IGNORECASE)
 class BulkInfo:
     is_bulk: bool = False
     authenticated: bool = False
+    aligned_domain: str | None = None  # From registrable domain, set only on an aligned dmarc=pass
 
 
 def _from_registrable(parsed: ParsedEmail) -> str | None:
@@ -53,7 +55,8 @@ def bulk_info(parsed: ParsedEmail) -> BulkInfo:
     names = {name for name, _ in parsed.headers}
     precedence = {v.strip().lower() for n, v in parsed.headers if n == "precedence"}
     is_bulk = bool(names & _BULK_HEADERS) or bool(precedence & _BULK_PRECEDENCE)
-    return BulkInfo(is_bulk, is_bulk and _dmarc_pass(parsed))
+    aligned = _from_registrable(parsed) if _dmarc_pass(parsed) else None
+    return BulkInfo(is_bulk, is_bulk and aligned is not None, aligned)
 
 
 def is_link_wrapper(url: NormalizedURL) -> bool:
@@ -62,3 +65,25 @@ def is_link_wrapper(url: NormalizedURL) -> bool:
     if url.host in wrappers or url.registrable in wrappers:
         return True
     return any(url.host.endswith("." + w) for w in wrappers if w.count(".") > 1)
+
+
+def is_sender_owned_link(url: NormalizedURL, bulk: BulkInfo | None) -> bool:
+    """True for a link on the authenticated sender's own well-known domain (ADR 0010).
+
+    Needs an aligned dmarc=pass, the link on that same registered domain, the domain on the bundled
+    popular list, and no URL rule firing on the link. Shared hosts are not on the list.
+    """
+    domain = bulk.aligned_domain if bulk else None
+    return bool(
+        domain
+        and url.registrable == domain
+        and domain in load_list("popular_domains")
+        and not run_url_rules(url)
+    )
+
+
+def link_discount(url: NormalizedURL, bulk: BulkInfo | None) -> str | None:
+    """Why a link is left out of the worst-link band: "wrapper", "sender_owned" or None."""
+    if is_link_wrapper(url):
+        return "wrapper"
+    return "sender_owned" if is_sender_owned_link(url, bulk) else None
