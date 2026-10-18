@@ -1,7 +1,7 @@
 # ADR-0010: Email link-band policy (tracker and sender-owned links)
 
 ## Status
-Implemented on `feature/email-link-policy`; phishing cost measured, benefit NOT measured (no fresh sample). Not Accepted until the benefit check runs
+Implemented and merged; phishing cost measured; benefit measured 2026-10-18 and the pre-registered bar was NOT met. Owner decides: Accepted-without-benefit or Rejected
 
 ## Date
 2026-10-17
@@ -64,3 +64,11 @@ Written before the run. The owner approved reusing the unused part of the ADR 00
 - **Measure:** `python -m phishguard.training.measure_link_policy`, run once, never overwritten, counts only (`reports/results/email_adr10_benefit.json`). Same model and ADR 0008 gate in both arms; only the sender-owned exemption differs. The email model v1 (the deployed default) is the primary result; v2 is reported in the same run.
 - **Bar:** the share of High or Suspicious drops by at least 5 points absolute (v1), and the 95% Wilson interval of the share of messages that lost a flag stays above zero. Met: status becomes Accepted. Not met: the owner chooses Accepted-without-benefit or Rejected (revert the exemption and `popular_domains.txt`).
 - **Limits:** senders overlap with the v2 training data, and only six mailboxes are covered, so the result is not a population rate. It cannot show that the exemption is safe against forged mail; that rests on the phishing_pot check.
+
+## Benefit result (2026-10-18)
+One run, counts only (`reports/results/email_adr10_benefit.json`): 1,004 unused messages from 118 sender domains (cap 10 per domain), six mailboxes (person_2 supplies 510).
+- **v1 (primary):** High or Suspicious 54.2% without the exemption, 53.9% with it. 3 messages lost a flag (0.3 points, 95% interval of the share 0.1% to 0.9%), none gained one. **Bar (5 points) not met.**
+- **v2:** 40.5% to 39.8%. 7 messages lost a flag (0.7 points, interval 0.3% to 1.4%). Bar not met.
+- By person, the drop was 0 for every mailbox except person_2 (0.6 points v1) and person_4 (1.0 point v2).
+
+**Reading.** The exemption is safe on this sample (it never added a flag, and cost 1 of 12,247 phishing_pot messages) but it removes almost no false flags. Over half of this unused automated mail is still flagged under v1, and about 40% under v2, so the remaining flags come from something else: other links (the exemption needs an aligned dmarc=pass and the sender's own popular domain) or the text model and gate. This sample cannot say which, and nothing was tuned on it. The bar was fixed before the run, so the status is not changed to Accepted.

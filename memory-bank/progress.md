@@ -43,3 +43,5 @@
 - Email link-band policy (ADR 0010): sender-owned popular-domain link exemption, Majestic-derived list, builder script, card wording; phishing cost measured (1 of 12,247 lost), benefit unmeasured; 445 Python and 29 frontend tests passing; on `feature/email-link-policy`, not merged - 2026-10-18
 
 - Email v2 golden scores pinned, ADR 0009 default-decision table, react-router findings kept documented; 446 fast tests passing; on `feature/email-v2-golden`, not merged - 2026-10-18
+
+- ADR 0010 benefit measured on 1,004 unused v2 ham messages: bar not met (0.3 points v1, 0.7 v2); 453 fast tests passing; on `feature/adr10-benefit`, not merged - 2026-10-18
