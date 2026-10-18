@@ -86,3 +86,7 @@ Post-v1 candidates, none started: v3 URL model with an external legitimate-host 
 - Checks (once, no tuning): PhiUSIIL phishing rows on list 1.69% (bar 1% MISSED by rows; 0.29% by domain; top 10,000 was 2.48%); phishing_pot lost flag 1 of 12,247 (bar met), result `email_phish_pot_v2_linkpolicy.json` (second phishing_pot run, permitted once for this ADR; do not repeat). Benefit NOT measured: needs owner-approved fresh automated-mail sample. ADR 0010 status says so.
 - 445 fast Python tests, 29 frontend tests, lint clean. Never run `evaluate` or `--force`. v2 still not default; user's `.env` says `MODEL_VERSION_EMAIL=v1`.
 - Next: user reviews the branch and decides merge/push; decide whether to get a fresh sample for the benefit check.
+
+## Session update (v2 golden, 2026-10-18)
+- Branch `feature/email-v2-golden` (unmerged, not pushed): v2 email golden scores in `tests/golden/scores_email_v2.json` + skip-guarded test; ADR 0009 side-by-side table (v1 vs v2, existing numbers only); ROADMAP re-check line for the 2 react-router findings (left documented, no upgrade). Default stays `MODEL_VERSION_EMAIL=v1`. 446 fast tests pass, lint clean.
+- User decisions: ADR 0010 benefit check = YES, collect a fresh automated-mail sample, but it waits for the mailbox owners' approval and the mbox (not started; pre-registered bar in the plan: flagged share drops >= 5 points with CI above 0). v2 default switch waits on that result and the owner accepting about 6 points less gated recall.
