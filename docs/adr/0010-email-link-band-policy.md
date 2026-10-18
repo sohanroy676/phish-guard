@@ -57,3 +57,10 @@ Counts only, each check run once, nothing tuned on the 123 held-out messages.
 
 ## Implementation notes
 `BulkInfo.aligned_domain` (set on any aligned `dmarc=pass`, not only bulk mail); `bulk.is_sender_owned_link` and `link_discount`; used by the email router and the measurement tools. A link with any URL rule hit is never exempted. Exempt links get Can't assess like wrappers, so they are never Low and are shown as "Link to the sender's own domain, not counted". No exemption in pasted-fields mode.
+
+## Benefit check, pre-registered (2026-10-18)
+Written before the run. The owner approved reusing the unused part of the ADR 0009 mailboxes instead of a new export.
+- **Sample:** automated mail from `data/raw/email_modern/v2_eml/` that passed every ADR 0009 ham filter (allowed category, English, not a duplicate, not near-identical to the 123 held-out messages) and was dropped only by the per-sender cap, so it was never trained on or scored. At most 10 messages per sender domain, in the seeded order. The sample is checked against the training selection by hash.
+- **Measure:** `python -m phishguard.training.measure_link_policy`, run once, never overwritten, counts only (`reports/results/email_adr10_benefit.json`). Same model and ADR 0008 gate in both arms; only the sender-owned exemption differs. The email model v1 (the deployed default) is the primary result; v2 is reported in the same run.
+- **Bar:** the share of High or Suspicious drops by at least 5 points absolute (v1), and the 95% Wilson interval of the share of messages that lost a flag stays above zero. Met: status becomes Accepted. Not met: the owner chooses Accepted-without-benefit or Rejected (revert the exemption and `popular_domains.txt`).
+- **Limits:** senders overlap with the v2 training data, and only six mailboxes are covered, so the result is not a population rate. It cannot show that the exemption is safe against forged mail; that rests on the phishing_pot check.
