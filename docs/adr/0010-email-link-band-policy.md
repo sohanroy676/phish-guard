@@ -1,7 +1,7 @@
 # ADR-0010: Email link-band policy (tracker and sender-owned links)
 
 ## Status
-Implemented and merged; phishing cost measured; benefit measured 2026-10-18 and the pre-registered bar was NOT met. Owner decides: Accepted-without-benefit or Rejected
+Accepted without benefit (owner decision, 2026-10-18). Implemented and merged; phishing cost measured; the benefit was measured and the pre-registered 5-point bar was NOT met (0.3 points v1, 0.7 v2). The exemption is kept because it is harmless on both checks, but it is not shown to help
 
 ## Date
 2026-10-17
@@ -72,3 +72,6 @@ One run, counts only (`reports/results/email_adr10_benefit.json`): 1,004 unused 
 - By person, the drop was 0 for every mailbox except person_2 (0.6 points v1) and person_4 (1.0 point v2).
 
 **Reading.** The exemption is safe on this sample (it never added a flag, and cost 1 of 12,247 phishing_pot messages) but it removes almost no false flags. Over half of this unused automated mail is still flagged under v1, and about 40% under v2, so the remaining flags come from something else: other links (the exemption needs an aligned dmarc=pass and the sender's own popular domain) or the text model and gate. This sample cannot say which, and nothing was tuned on it. The bar was fixed before the run, so the status is not changed to Accepted.
+
+## Decision (2026-10-18)
+The owner accepted ADR 0010 without benefit. The exemption and `popular_domains.txt` stay. Do not describe it as a fix for false flags on automated mail; the remaining flags come from something else and are not yet explained.
