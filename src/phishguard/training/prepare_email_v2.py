@@ -84,8 +84,13 @@ def select_modern(
     held_texts: list[str],
     seed: int,
     cap: int = DEFAULT_CAP,
+    leftover: list[tuple[str, bytes, str]] | None = None,
 ) -> tuple[list[Record], dict[str, Counter]]:
-    """Apply the ham-side filters. Returns the kept records and per-person drop counts."""
+    """Apply the ham-side filters. Returns the kept records and per-person drop counts.
+
+    `leftover`, when given, collects (alias, raw, domain) of messages that passed every filter and
+    were dropped only by the sender cap, in the same seeded order. They were never trained on.
+    """
     stats: dict[str, Counter] = {}
     pool: list[tuple[str, bytes, str, str, str]] = []  # alias, raw, text, domain, key
     seen_ids: set[str] = set()
@@ -137,6 +142,8 @@ def select_modern(
     ):
         if per_domain[domain] >= cap:
             stats[alias]["sender_cap"] += 1
+            if leftover is not None:
+                leftover.append((alias, raw, domain))
             continue
         per_domain[domain] += 1
         stats[alias]["selected"] += 1

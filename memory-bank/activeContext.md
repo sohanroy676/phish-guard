@@ -90,3 +90,9 @@ Post-v1 candidates, none started: v3 URL model with an external legitimate-host 
 ## Session update (v2 golden, 2026-10-18)
 - Branch `feature/email-v2-golden` (unmerged, not pushed): v2 email golden scores in `tests/golden/scores_email_v2.json` + skip-guarded test; ADR 0009 side-by-side table (v1 vs v2, existing numbers only); ROADMAP re-check line for the 2 react-router findings (left documented, no upgrade). Default stays `MODEL_VERSION_EMAIL=v1`. 446 fast tests pass, lint clean.
 - User decisions: ADR 0010 benefit check = YES, collect a fresh automated-mail sample, but it waits for the mailbox owners' approval and the mbox (not started; pre-registered bar in the plan: flagged share drops >= 5 points with CI above 0). v2 default switch waits on that result and the owner accepting about 6 points less gated recall.
+
+## Session update (ADR 0010 benefit measured, 2026-10-18)
+- Branch `feature/adr10-benefit` (stacked on `feature/email-v2-golden`, unmerged, not pushed): `training/measure_link_policy.py` + tests; `select_modern` got an additive `leftover` hook. Sample = unused v2_eml ham dropped only by the per-sender cap (owner approved reuse), 1,004 messages, 118 domains, 10 per domain.
+- Run once, bar pre-registered in ADR 0010 and NOT met: flagged 54.2% -> 53.9% (v1, 3 lost, 0 gained), 40.5% -> 39.8% (v2, 7 lost). Result `reports/results/email_adr10_benefit.json`. Do not re-run. ADR status: owner decides Accepted-without-benefit or Rejected.
+- Finding: most remaining false flags on modern automated mail are NOT from sender-owned links. Next investigation (not started): which component (other links, text model, gate) drives the 54% / 40%. Do not tune on this sample without asking. v2 default switch still waits on the owner.
+- DECISION: ADR 0010 Accepted without benefit (owner, 2026-10-18). Both branches merged to main and pushed. No tag created.

@@ -1,7 +1,7 @@
 # ADR-0010: Email link-band policy (tracker and sender-owned links)
 
 ## Status
-Implemented on `feature/email-link-policy`; phishing cost measured, benefit NOT measured (no fresh sample). Not Accepted until the benefit check runs
+Accepted without benefit (owner decision, 2026-10-18). Implemented and merged; phishing cost measured; the benefit was measured and the pre-registered 5-point bar was NOT met (0.3 points v1, 0.7 v2). The exemption is kept because it is harmless on both checks, but it is not shown to help
 
 ## Date
 2026-10-17
@@ -57,3 +57,21 @@ Counts only, each check run once, nothing tuned on the 123 held-out messages.
 
 ## Implementation notes
 `BulkInfo.aligned_domain` (set on any aligned `dmarc=pass`, not only bulk mail); `bulk.is_sender_owned_link` and `link_discount`; used by the email router and the measurement tools. A link with any URL rule hit is never exempted. Exempt links get Can't assess like wrappers, so they are never Low and are shown as "Link to the sender's own domain, not counted". No exemption in pasted-fields mode.
+
+## Benefit check, pre-registered (2026-10-18)
+Written before the run. The owner approved reusing the unused part of the ADR 0009 mailboxes instead of a new export.
+- **Sample:** automated mail from `data/raw/email_modern/v2_eml/` that passed every ADR 0009 ham filter (allowed category, English, not a duplicate, not near-identical to the 123 held-out messages) and was dropped only by the per-sender cap, so it was never trained on or scored. At most 10 messages per sender domain, in the seeded order. The sample is checked against the training selection by hash.
+- **Measure:** `python -m phishguard.training.measure_link_policy`, run once, never overwritten, counts only (`reports/results/email_adr10_benefit.json`). Same model and ADR 0008 gate in both arms; only the sender-owned exemption differs. The email model v1 (the deployed default) is the primary result; v2 is reported in the same run.
+- **Bar:** the share of High or Suspicious drops by at least 5 points absolute (v1), and the 95% Wilson interval of the share of messages that lost a flag stays above zero. Met: status becomes Accepted. Not met: the owner chooses Accepted-without-benefit or Rejected (revert the exemption and `popular_domains.txt`).
+- **Limits:** senders overlap with the v2 training data, and only six mailboxes are covered, so the result is not a population rate. It cannot show that the exemption is safe against forged mail; that rests on the phishing_pot check.
+
+## Benefit result (2026-10-18)
+One run, counts only (`reports/results/email_adr10_benefit.json`): 1,004 unused messages from 118 sender domains (cap 10 per domain), six mailboxes (person_2 supplies 510).
+- **v1 (primary):** High or Suspicious 54.2% without the exemption, 53.9% with it. 3 messages lost a flag (0.3 points, 95% interval of the share 0.1% to 0.9%), none gained one. **Bar (5 points) not met.**
+- **v2:** 40.5% to 39.8%. 7 messages lost a flag (0.7 points, interval 0.3% to 1.4%). Bar not met.
+- By person, the drop was 0 for every mailbox except person_2 (0.6 points v1) and person_4 (1.0 point v2).
+
+**Reading.** The exemption is safe on this sample (it never added a flag, and cost 1 of 12,247 phishing_pot messages) but it removes almost no false flags. Over half of this unused automated mail is still flagged under v1, and about 40% under v2, so the remaining flags come from something else: other links (the exemption needs an aligned dmarc=pass and the sender's own popular domain) or the text model and gate. This sample cannot say which, and nothing was tuned on it. The bar was fixed before the run, so the status is not changed to Accepted.
+
+## Decision (2026-10-18)
+The owner accepted ADR 0010 without benefit. The exemption and `popular_domains.txt` stay. Do not describe it as a fix for false flags on automated mail; the remaining flags come from something else and are not yet explained.
