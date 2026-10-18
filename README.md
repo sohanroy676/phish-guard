@@ -23,7 +23,7 @@ Then edit `.env`. It is git-ignored, and the app refuses to start with an empty 
 ```
 python -c "import secrets; print(secrets.token_hex(32))"   # run twice: SECRET_KEY and HMAC_PEPPER
 ```
-Set `MODEL_VERSION_URL=v2` and, once the email model is trained, `MODEL_VERSION_EMAIL=v1`. With a version empty, that analyzer returns 503.
+Set `MODEL_VERSION_URL=v2` and, once the email model is trained, `MODEL_VERSION_EMAIL=v2`. With a version empty, that analyzer returns 503.
 
 ## Train the models
 Datasets are downloaded by hand once into `data/raw/` (git-ignored, never fetched by the app). Checksums and sources are in `configs/url.yaml` and `configs/email.yaml`.

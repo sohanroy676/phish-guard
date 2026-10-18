@@ -60,3 +60,6 @@ v2 golden scores are now pinned in `tests/golden/scores_email_v2.json` (3 inputs
 | phishing_pot gated final | 88.7% | 82.5% |
 
 Switching trades about 6 points of gated phishing recall (and 8 ungated) for 23 points fewer false flags on one group's modern automated mail. Criteria for a later switch: the ADR 0010 benefit result (links cause most remaining flags), and the owner accepting the recall loss.
+
+## Update 2026-10-18 (default switched to v2)
+The owner asked for v2 to become the default if it is better. Judged better on balance, with the cost stated. On the 1,004 unused automated messages the final flagged share falls from 53.9% (v1) to 39.8% (v2); on the 123 held-out messages from 82.1% to 59.3%. The price is about 6 points of gated phishing recall on phishing_pot (88.7% to 82.5%; 98.2% to 89.9% ungated). v1 flagged 93.5% of modern ham on text alone and relied on the ADR 0008 gate to hide it, which also hides phishing; v2 needs the gate far less (gated to Can't assess 11% against 35%). Caveats: the ham numbers come from six consenting mailboxes and are not a population rate, and the phishing set is old-style corpus mail. The default in `.env.example` and the README is now `MODEL_VERSION_EMAIL=v2`; v1 stays loadable. Status: Accepted as the default.
