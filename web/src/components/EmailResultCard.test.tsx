@@ -65,4 +65,18 @@ describe("EmailResultCard bulk mail", () => {
     render(<EmailResultCard result={{ ...base, links: [link] }} />);
     expect(screen.getByText(/real destination is hidden, so it is not counted/)).toBeTruthy();
   });
+
+  it("marks a sender-owned link as not counted", () => {
+    const link = {
+      display_host: "shop[.]com",
+      band: "cant_assess" as const,
+      headline: "Can't assess",
+      lookalike: false,
+      discounted: true,
+      discount_reason: "sender_owned" as const,
+      rule_warnings: [],
+    };
+    render(<EmailResultCard result={{ ...base, links: [link] }} />);
+    expect(screen.getByText(/Link to the sender's own domain, not counted/)).toBeTruthy();
+  });
 });
