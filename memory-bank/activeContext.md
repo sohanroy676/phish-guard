@@ -79,3 +79,10 @@ Post-v1 candidates, none started: v3 URL model with an external legitimate-host 
 - Recommendation: keep the ADR 0008 gate; next is a link-band policy for tracker/wrapper domains (ADR 0010). v2 is NOT the default: the user's `.env` still says `MODEL_VERSION_EMAIL=v1`. No v2 golden scores yet. `reddy` (surname) left in the model on purpose.
 - Never run `evaluate` or `--force`. Next: user reviews and merges the branch; decide whether to switch to v2.
 - ADR 0010 (Proposed, design only): exempt links that are on the authenticated From domain AND on a bundled popular-domain list from the worst-link band; acceptance checks listed in the ADR; nothing implemented, no list downloaded (re-check Majestic licence first). Next session: review ADR 0010, decide on a fresh automated-mail sample (needs owner approval), then implement on a new branch.
+
+## Session update (ADR 0010 link policy implemented) - 2026-10-18
+- main was already pushed; v1.1.0 and v1.2.0 tagged and pushed (v1.2.0 = 9e3e11a). User gave full permission to decide.
+- Branch `feature/email-link-policy` (code commit 9204a61 + docs commit, unmerged, not pushed). Sender-owned links (aligned dmarc=pass, link on the From registrable domain, domain on bundled `popular_domains.txt`, no URL rule hit) are left out of the worst-link band, shown as not counted, never Low. List: Majestic Million (CC BY 3.0, verified on the page) top 5,000 minus shared hosts = 4,789 domains; raw CSV in git-ignored `data/raw/popular_domains/`.
+- Checks (once, no tuning): PhiUSIIL phishing rows on list 1.69% (bar 1% MISSED by rows; 0.29% by domain; top 10,000 was 2.48%); phishing_pot lost flag 1 of 12,247 (bar met), result `email_phish_pot_v2_linkpolicy.json` (second phishing_pot run, permitted once for this ADR; do not repeat). Benefit NOT measured: needs owner-approved fresh automated-mail sample. ADR 0010 status says so.
+- 445 fast Python tests, 29 frontend tests, lint clean. Never run `evaluate` or `--force`. v2 still not default; user's `.env` says `MODEL_VERSION_EMAIL=v1`.
+- Next: user reviews the branch and decides merge/push; decide whether to get a fresh sample for the benefit check.

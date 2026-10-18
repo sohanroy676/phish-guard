@@ -1,7 +1,7 @@
 # ADR-0010: Email link-band policy (tracker and sender-owned links)
 
 ## Status
-Proposed (design only: nothing is implemented, no data was downloaded)
+Implemented on `feature/email-link-policy`; phishing cost measured, benefit NOT measured (no fresh sample). Not Accepted until the benefit check runs
 
 ## Date
 2026-10-17
@@ -43,3 +43,17 @@ Counts only, each run once, no tuning on the held-out data:
 - Authentication data are only available with real headers, so pasted-field mode gets no exemption.
 - This is a design for one mailbox group's problem; the benefit is measured on a small sample and is not a general rate.
 - Implementation, the list and the measurements are a later branch; the app keeps the ADR 0008 behaviour until then.
+
+## Results (2026-10-18)
+Counts only, each check run once, nothing tuned on the 123 held-out messages.
+
+- **Licence.** The Majestic Million page states "Licensed under a Creative Commons Attribution 3.0 Unported License" (fetched from majestic.com/reports/majestic-million). `popular_domains.txt` carries the attribution and the CSV's SHA-256.
+- **List.** Pre-registered top N was 10,000; the fallback was 5,000 if the PhiUSIIL check exceeded 1%. Shared hosts are removed (public-suffix private section, `free_hosting`, `shorteners`, new `user_content_hosts.txt`). Bundled: top 5,000, 4,789 domains after removal. Rebuild: `phishguard.training.build_popular_domains`.
+- **Phishing cost on URLs (PhiUSIIL, label 0, 100,937 rows, 43,510 domains).** Unfiltered top 10,000: 26.3% of rows, dominated by hosting platforms (web.app, firebaseapp.com, workers.dev), which is why shared hosts are removed. After removal: 2.48% of rows at top 10,000; 1.69% of rows (0.29% of unique domains) at top 5,000. **The 1% bar is missed by rows** (met by domains). The list was not shrunk or edited further, to avoid tuning on this data. The remaining rows are cloud and site-builder domains; the exemption also needs the sender to be that same domain with an aligned `dmarc=pass`, which the mail check below measures.
+- **Phishing cost on mail (phishing_pot, 12,247, email v2 + ADR 0008 gate, `email_phish_pot_v2_linkpolicy.json`).** The policy changed the band of 10 messages (0.08%) and removed the High or Suspicious flag from 1 (0.008%). Gated flagged 82.46% -> 82.45%. Bar (at most 1.0 point extra loss) met by a wide margin. phishing_pot was re-scored once for this ADR with the owner's permission; do not re-run.
+- **Benefit.** Not measured. A fresh sample of automated mail needs the mailbox owners' approval, which has not been given. The effect on the 123 held-out messages was deliberately not measured.
+
+**Reading.** The exemption costs almost no phishing recall, but its benefit is unproven, and the URL-row bar was missed. Keep the code, treat the status as pending, and measure the benefit before relying on it.
+
+## Implementation notes
+`BulkInfo.aligned_domain` (set on any aligned `dmarc=pass`, not only bulk mail); `bulk.is_sender_owned_link` and `link_discount`; used by the email router and the measurement tools. A link with any URL rule hit is never exempted. Exempt links get Can't assess like wrappers, so they are never Low and are shown as "Link to the sender's own domain, not counted". No exemption in pasted-fields mode.
