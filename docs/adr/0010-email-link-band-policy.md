@@ -75,3 +75,10 @@ One run, counts only (`reports/results/email_adr10_benefit.json`): 1,004 unused 
 
 ## Decision (2026-10-18)
 The owner accepted ADR 0010 without benefit. The exemption and `popular_domains.txt` stay. Do not describe it as a fix for false flags on automated mail; the remaining flags come from something else and are not yet explained.
+
+## Flag-source breakdown, pre-registered (2026-10-18)
+Written before the run. Question: which component drives the remaining flags on the 1,004-message sample (54% under v1, 40% under v2)?
+- **Tool:** `python -m phishguard.training.measure_flag_sources --config configs/email_v2.yaml`, one run, counts only, never overwritten (`reports/results/email_flag_sources.json`). Same sample, deployed configuration (ADR 0008 gate, ADR 0010 exemption on). It aborts without writing if the deployed flagged share differs from the benefit result by more than 0.2 points.
+- **Buckets** (each flagged message in exactly one, by which removal keeps the flag): `rule` (survives with text and links forced Low), `either_alone`, `text_only`, `links_only`, `interaction`.
+- **Also counted:** text band and worst link band shares, flags raised by the URL model alone on counted links, flags with no counted link, bulk and aligned-dmarc shares, gate losses, rule ids on flagged mail.
+- **No tuning.** No threshold, rule, gate or list changes follow from this run alone. A band-policy change needs ADR 0011 and the owner's approval.
