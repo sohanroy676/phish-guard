@@ -45,3 +45,5 @@
 - Email v2 golden scores pinned, ADR 0009 default-decision table, react-router findings kept documented; 446 fast tests passing; on `feature/email-v2-golden`, not merged - 2026-10-18
 
 - ADR 0010 benefit measured on 1,004 unused v2 ham messages: bar not met (0.3 points v1, 0.7 v2); 453 fast tests passing; on `feature/adr10-benefit`, not merged - 2026-10-18
+
+- Flag-source breakdown tool built and run once (links dominate under v2; rule floor 9.7%); ADR 0010 addendum; 462 fast tests passing; on `feature/email-flag-sources`, not merged - 2026-10-18
