@@ -23,6 +23,7 @@ Version-by-version tasks, tests and expected results are in `memory-bank/detaile
 - Playwright end-to-end tests and hypothesis property tests
 - Stacking, offline blocklist snapshot as a separate check, LLM-rewritten robustness test set
 - PostgreSQL
+- Re-check the 2 react-router npm audit findings at the next dependency review (unreachable today; see README known limits)
 
 ## Explicitly not planned
 - Browser extension, Gmail or Outlook integration

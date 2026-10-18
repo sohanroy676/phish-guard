@@ -18,7 +18,9 @@ from phishguard.core.url.normalize import normalize_url
 from phishguard.core.url.scoring import load_url_scorer
 
 GOLDEN = Path(__file__).with_name("scores.json")
+GOLDEN_EMAIL_V2 = Path(__file__).with_name("scores_email_v2.json")
 URL_VERSION, EMAIL_VERSION = "v2", "v1"
+EMAIL_V2 = "v2"  # opt-in model (ADR 0009); pinned separately until it becomes the default
 TOLERANCE = 1e-6
 
 URLS = [
@@ -48,6 +50,19 @@ PRIMARY = {"url": "lr_char.joblib", "email": "lr_text.joblib"}
 def _has(kind: str, version: str) -> bool:
     """The manifest is committed but the .joblib is git-ignored, so test the model file."""
     return (MODELS_DIR / kind / version / PRIMARY[kind]).is_file()
+
+
+def compute_email(version: str) -> dict:
+    out: dict = {"email_version": version, "email": {}}
+    if _has("email", version):
+        s = load_email_scorer(version)
+        for name, make in EMAILS.items():
+            score = s.score(make())
+            out["email"][name] = {
+                "score": round(score, 6),
+                "band": model_band(score, s.t_high, s.t_low),
+            }
+    return out
 
 
 def compute(kinds=("url", "email")) -> dict:
@@ -97,6 +112,20 @@ def test_email_scores_match_golden():
     _check("email")
 
 
+@pytest.mark.skipif(not _has("email", EMAIL_V2), reason="email v2 model not trained locally")
+def test_email_v2_scores_match_golden():
+    golden = json.loads(GOLDEN_EMAIL_V2.read_text(encoding="utf-8"))
+    current = compute_email(EMAIL_V2)
+    assert golden["email_version"] == current["email_version"]
+    assert set(golden["email"]) == set(current["email"]) == set(EMAILS)
+    for key, want in golden["email"].items():
+        got = current["email"][key]
+        assert got["band"] == want["band"], f"{key}: v2 band changed without a version bump"
+        assert got["score"] == pytest.approx(want["score"], abs=TOLERANCE), (
+            f"{key}: v2 score changed without a version bump"
+        )
+
+
 @pytest.mark.skipif(
     not (_has("url", URL_VERSION) and _has("email", EMAIL_VERSION)), reason="models not trained"
 )
@@ -109,3 +138,8 @@ def test_golden_file_is_not_trivially_empty():
 if __name__ == "__main__":
     GOLDEN.write_text(json.dumps(compute(), indent=2) + "\n", encoding="utf-8")
     print(f"wrote {GOLDEN}")
+    if _has("email", EMAIL_V2):
+        GOLDEN_EMAIL_V2.write_text(
+            json.dumps(compute_email(EMAIL_V2), indent=2) + "\n", encoding="utf-8"
+        )
+        print(f"wrote {GOLDEN_EMAIL_V2}")

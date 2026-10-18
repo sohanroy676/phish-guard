@@ -1,0 +1,17 @@
+{
+  "email_version": "v2",
+  "email": {
+    "fields_phish": {
+      "score": 0.939524,
+      "band": "high"
+    },
+    "fields_ham": {
+      "score": 0.250511,
+      "band": "low"
+    },
+    "raw_phish": {
+      "score": 0.958028,
+      "band": "high"
+    }
+  }
+}

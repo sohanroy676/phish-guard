@@ -47,3 +47,16 @@ The source is widened to the owner's mailbox plus several friends' mailboxes, ea
 **Known leaks left in.** `reddy` (a surname, weight about -1.0) was not removed because a committed stoplist should not hold personal names. `unsubscribe` is the strongest ham n-gram (a phisher can add it). `otp` and `your order` rest on few senders.
 
 **Gate recommendation (not decided, no band-policy change made).** Keep the ADR 0008 gate as it is for now. The text model no longer drives the false flags, links do, and the gate is the only thing handling tracker links. The next step is a link-band policy for tracking and wrapper domains, which needs its own ADR (0010). v2 should not become the default (`MODEL_VERSION_EMAIL`) until the owner has reviewed the recall loss; the app loads v2 correctly via `mask: sender`, but there are no app-level v2 golden scores yet.
+
+## Update 2026-10-18 (golden scores, side-by-side for the default decision)
+v2 golden scores are now pinned in `tests/golden/scores_email_v2.json` (3 inputs, same tolerance, skipped when the v2 `.joblib` is absent; regenerate with `python tests/golden/test_scores.py`). The default is NOT changed: `MODEL_VERSION_EMAIL` stays `v1`. Existing numbers only, nothing re-measured:
+
+| Measure | v1 | v2 |
+|---|---|---|
+| Text alone flagged, 123 held-out own mail | 93.5% | 17.9% |
+| Final band with gate, 123 held-out | 82.1% | 59.3% |
+| phishing_pot text alone flagged (12,247) | 95.2% | 72.8% |
+| phishing_pot ungated final | 98.2% | 89.9% |
+| phishing_pot gated final | 88.7% | 82.5% |
+
+Switching trades about 6 points of gated phishing recall (and 8 ungated) for 23 points fewer false flags on one group's modern automated mail. Criteria for a later switch: the ADR 0010 benefit result (links cause most remaining flags), and the owner accepting the recall loss.
